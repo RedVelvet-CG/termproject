@@ -7,8 +7,6 @@
 static const char*	window_name = "cgbase - trackball";
 static const char*	vert_shader_path = "../bin/shaders/trackball.vert";
 static const char*	frag_shader_path = "../bin/shaders/trackball.frag";
-static const char*	mesh_vertex_path = "../bin/mesh/dragon.vertex.bin";
-static const char*	mesh_index_path	= "../bin/mesh/dragon.index.bin";
 
 //*************************************
 // common structures
@@ -41,9 +39,7 @@ int		frame = 0;				// index of rendering frames
 
 //*************************************
 // scene objects
-mesh*		pMesh = nullptr;
 camera		cam;
-trackball	tb;
 
 //*************************************
 void update()
@@ -73,10 +69,9 @@ void render()
 	glUseProgram( program );
 
 	// bind vertex array object
-	if(pMesh&&pMesh->vertex_array) glBindVertexArray( pMesh->vertex_array );
 
 	// render vertices: trigger shader programs to process vertex data
-	glDrawElements( GL_TRIANGLES, pMesh->index_list.size(), GL_UNSIGNED_INT, nullptr );
+	glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr );
 
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers( window );
@@ -113,18 +108,11 @@ void mouse( GLFWwindow* window, int button, int action, int mods )
 {
 	if(button==GLFW_MOUSE_BUTTON_LEFT)
 	{
-		dvec2 pos; glfwGetCursorPos(window,&pos.x,&pos.y);
-		vec2 npos = cursor_to_ndc( pos, window_size );
-		if(action==GLFW_PRESS)			tb.begin( cam.view_matrix, npos );
-		else if(action==GLFW_RELEASE)	tb.end();
 	}
 }
 
 void motion( GLFWwindow* window, double x, double y )
 {
-	if(!tb.is_tracking()) return;
-	vec2 npos = cursor_to_ndc( dvec2(x,y), window_size );
-	cam.view_matrix = tb.update( npos );
 }
 
 bool user_init()
@@ -136,10 +124,6 @@ bool user_init()
 	glClearColor( 39/255.0f, 40/255.0f, 34/255.0f, 1.0f );	// set clear color
 	glEnable( GL_CULL_FACE );								// turn on backface culling
 	glEnable( GL_DEPTH_TEST );								// turn on depth tests
-
-	// load the mesh
-	pMesh = cg_load_mesh( mesh_vertex_path, mesh_index_path );
-	if(pMesh==nullptr){ printf( "Unable to load mesh\n" ); return false; }
 
 	return true;
 }
