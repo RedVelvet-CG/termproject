@@ -1,7 +1,7 @@
 #include "cgmath.h"		// slee's simple math library
 #include "cgut.h"		// slee's OpenGL utility
 #include "trackball.h"	// virtual trackball
-#include "object.h"
+#include "tank.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
