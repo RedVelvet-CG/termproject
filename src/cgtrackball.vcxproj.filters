@@ -31,7 +31,10 @@
     <ClInclude Include="cgut.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="object.h">
+    <ClInclude Include="tank.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="field.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
