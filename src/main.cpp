@@ -3,6 +3,7 @@
 #include "trackball.h"	// virtual trackball
 #include"field.h"
 #include "tank.h"
+#include "wall.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
@@ -35,6 +36,7 @@ int		frame = 0;				// index of rendering frames
 float	t = 0.0f;
 auto	fields = create_field();
 auto	tanks = create_tank();
+auto	walls = create_wall();
 int		zoom = 0;
 int		pan = 0;
 int		zoomval = 50;
@@ -55,6 +57,7 @@ trackball	tb;
 // holder of vertices and indices of a unit circle
 std::vector<vertex> unit_field_vertices; // host-side vertices for field
 std::vector<vertex>	unit_tank_vertices;	// host-side vertices for tank
+std::vector<vertex>	unit_wall_vertices;	// host-side vertices for wall
 std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
 
 void update() {
@@ -75,28 +78,22 @@ void render() {
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
 	
-	for (auto& c : fields) {
-		float t = float(glfwGetTime());
-		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
-			mat4::translate(c.movval.x, 0, 0) *
-			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
-			mat4::translate(0, 0, 0) *
-			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
-			mat4::scale(c.radius, c.radius, c.radius);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
-		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, (void*)(c.creation_val * 0 * sizeof(GLuint)));
+	for (auto& f : fields) {
+		f.update();
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
+		glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
 	}
 	
-	for (auto& c : tanks) {
-		float t = float(glfwGetTime());
-		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
-			mat4::translate(c.movval.x, 0, 0) *
-			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
-			mat4::translate(0, 0, 0) *
-			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
-			mat4::scale(c.radius, c.radius, c.radius);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
-		glDrawElements(GL_TRIANGLES, c.creation_val*3, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
+	for (auto& t : tanks) {
+		t.update();
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
+		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
+	}
+
+	for (auto& w : walls) {
+		w.update();
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
+		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
 	}
 	
 	// swap front and back buffers, and display to screen
@@ -133,6 +130,7 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	//make_field_indices(indices, N); // create buffers
 	make_field_indices(indices, 0);
 	make_tank_indices(indices, 8); // create buffers
+	make_wall_indices(indices, 32);
 								   
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
@@ -246,13 +244,14 @@ bool user_init() {
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 
-
 	//create_field_vertices(unit_field_vertices);
 	create_field_vertices(unit_field_vertices);
 	create_tank_vertices(unit_tank_vertices);
+	create_wall_vertices(unit_wall_vertices);
 	//combine_vertices(unit_field_vertices);
 	combine_vertices(unit_field_vertices);
 	combine_vertices(unit_tank_vertices);
+	combine_vertices(unit_wall_vertices);
 	printf("%d\n", unit_combine_vertices.size());
 	// create vertex buffer; called again when index buffering mode is toggled
 	

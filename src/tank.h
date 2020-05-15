@@ -7,14 +7,16 @@
 
 struct tank {
 	vec3	center = vec3(0);		// 2D position for translation
-	float	radius = 10.0f;		// radius
-	vec3	movval = vec3(0);
 	float	theta = 0.0f; //rotation angle
 	vec4	color;				// RGBA color in [0,1]
-	//mat4	model_matrix;		// modeling transformation
-	int		creation_val = 3 * 2 * 6 * 3;//50 * 3 * 50 * 2;
+	mat4	model_matrix;		// modeling transformation
+	int		creation_val = 3 * 2 * 6 * 3;
 	bool	created = false;
 	bool	is_dead = false;
+	float	radius = 10.0f;		// radius
+	vec3	movval = vec3(0);
+
+	inline void update();
 };
 
 void create_tank_vertices(std::vector<vertex>& v) {
@@ -52,9 +54,14 @@ void create_tank_vertices(std::vector<vertex>& v) {
 
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
-	tank tank1 = { vec3(0.f, 0.f,0.f),10.0f, vec3(0.0f, 0.0f, 0.0f), 0.0f, vec4(0.0f,0.0f,0.0f,0.0f) };
-	//tank tank2 = { vec3(0.f, 0.f,0.f),10.0f, vec3(20.0f, 0.0f, 0.0f), 0.0f, vec4(0.0f,0.0f,0.0f,0.0f) };
-	spheres.emplace_back(tank1);
+	tank mytank = { vec3(-40.0f, -80.0f, 0.0f), -PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
+	tank enemy1 = { vec3(-80.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
+	tank enemy2 = { vec3(0.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
+	tank enemy3 = { vec3(80.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
+	spheres.emplace_back(mytank);
+	spheres.emplace_back(enemy1);
+	spheres.emplace_back(enemy2);
+	spheres.emplace_back(enemy3);
 	//spheres.emplace_back(tank2);
 	return spheres;
 }
@@ -92,6 +99,15 @@ inline void make_tank_indices(std::vector<uint>& v, uint N) {
 	make_tank_part(v, N+8);
 	//barrel
 	make_tank_part(v, N+16);
+}
+
+inline void tank::update() {
+	model_matrix = mat4::rotate(vec3(0, 1, 0), 0) *  //rotation around sun
+		mat4::translate(0, 0, 0) *
+		mat4::rotate(vec3(0, 0, 0), 0) * //self-rotation
+		mat4::translate(center.x, center.y, center.z) *
+		mat4::rotate(vec3(0, 0, 1), theta) *
+		mat4::scale(radius, radius, radius);
 }
 
 #endif
