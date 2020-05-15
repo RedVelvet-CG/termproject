@@ -13,7 +13,8 @@ struct sphere {
 	vec4	color;				// RGBA color in [0,1]
 	//mat4	model_matrix;		// modeling transformation
 	int		creation_val = 3 * 2 * 6 * 4;//50 * 3 * 50 * 2;
-
+	bool	created = false;
+	bool	is_dead = false;
 };
 
 void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yval, float zval, float diameter) {
