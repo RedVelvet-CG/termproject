@@ -21,7 +21,7 @@ inline std::vector<wall_t> create_walls()
 	std::vector<wall_t> walls;
 	wall_t w;
 
-	w = { vec3(2.0f, 2.0f, 1.0f),true,false,false};
+	w = { vec3(2.0f, 2.0f, 1.0f),true,false,false };
 	walls.emplace_back(w);
 	w = { vec3(2.0f, 4.0f, 1.0f),true,false,false };
 	walls.emplace_back(w);
