@@ -13,10 +13,18 @@ struct sphere {
 	vec4	color;				// RGBA color in [0,1]
 	//mat4	model_matrix;		// modeling transformation
 	int		creation_val = 3 * 2 * 6 * 4;//50 * 3 * 50 * 2;
+<<<<<<< HEAD
+	bool	created = false;
+	bool	is_dead = false;
+};
+
+void create_circle_vertices(std::vector<vertex>& v) {
+=======
 
 };
 
 void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yval, float zval, float diameter) {
+>>>>>>> master
 	//body
 	v.push_back({ vec3(1.f,1.f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(-1.f,1.f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
@@ -28,6 +36,36 @@ void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yv
 	v.push_back({ vec3(1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 
 	//head
+<<<<<<< HEAD
+	v.push_back({ vec3(0.9f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.1f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(0.1f,-0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.9f,-0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(0.9f,0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.1f,0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(0.1f,-0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.9f,-0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+
+	//barrel
+	v.push_back({ vec3(0.1f,0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(-1.0f,0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(-1.0f,-0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.1f,-0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(0.1f,0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(-1.0f,0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(-1.0f,-0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(0.1f,-0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+
+	//body
+	v.push_back({ vec3(9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+=======
 	v.push_back({ vec3(0.4f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(-0.4f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 	v.push_back({ vec3(-0.4f,-0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
@@ -56,6 +94,7 @@ void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yv
 	v.push_back({ vec3(-20.f,20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
 	v.push_back({ vec3(-20.f,-20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
 	v.push_back({ vec3(20.f,-20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+>>>>>>> master
 }
 
 inline std::vector<sphere> create_universe() {
