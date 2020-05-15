@@ -48,14 +48,14 @@ void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yv
 	v.push_back({ vec3(0.1f,-0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 
 	//body
-	v.push_back({ vec3(20.f,20.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-20.f,20.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-20.f,-20.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(20.f,-20.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(20.f,20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-20.f,20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-20.f,-20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(20.f,-20.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
 }
 
 inline std::vector<sphere> create_universe() {
