@@ -75,10 +75,7 @@ void render() {
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
 	
-	/*
 	for (auto& c : fields) {
-		GLint uloc;
-		uloc = glGetUniformLocation(program, "solid_color");		if (uloc > -1) glUniform4fv(uloc, 1, c.color);	// pointer version
 		float t = float(glfwGetTime());
 		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
 			mat4::translate(c.movval.x, 0, 0) *
@@ -87,22 +84,21 @@ void render() {
 			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
 			mat4::scale(c.radius, c.radius, c.radius);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
-		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
-	}*/
-
-	for (auto& c : tanks) {
-		GLint uloc;
-		uloc = glGetUniformLocation(program, "solid_color");		if (uloc > -1) glUniform4fv(uloc, 1, c.color);	// pointer version
-		float t = float(glfwGetTime());
-		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
-			mat4::translate(c.movval.x, 0, 0) *
-			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
-			mat4::translate(0, 0, 0) *
-			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
-			mat4::scale(c.radius, c.radius, c.radius);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
-		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, (void*)(c.creation_val * 0 * sizeof(GLuint)));
 	}
+	
+	for (auto& c : tanks) {
+		float t = float(glfwGetTime());
+		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
+			mat4::translate(c.movval.x, 0, 0) *
+			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
+			mat4::translate(0, 0, 0) *
+			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
+			mat4::scale(c.radius, c.radius, c.radius);
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
+		glDrawElements(GL_TRIANGLES, c.creation_val*3, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
+	}
+	
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
 }
@@ -133,8 +129,11 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (index_buffer)	glDeleteBuffers(1, &index_buffer);	index_buffer = 0;
 	if (vertices.empty()) { printf("[error] vertices is empty.\n"); return; } // check exceptions
 	std::vector<uint> indices;
-	make_field_indices(indices, N); // create buffers
-	make_tank_indices(indices, N); // create buffers
+	
+	//make_field_indices(indices, N); // create buffers
+	make_field_indices(indices, 0);
+	make_tank_indices(indices, 8); // create buffers
+								   
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -232,11 +231,8 @@ void motion(GLFWwindow* window, double x, double y) {
 	cam.view_matrix = tb.update(npos, zoom, pan, zoomval, panval);
 }
 
-void combine_vertices(std::vector<vertex> v1, std::vector<vertex> v2) {
-	for (auto i : v1) {
-		unit_combine_vertices.push_back(i);
-	}
-	for (auto i : v2) {
+inline void combine_vertices(std::vector<vertex> v) {
+	for (auto i : v) {
 		unit_combine_vertices.push_back(i);
 	}
 }
@@ -249,12 +245,20 @@ bool user_init() {
 	glEnable(GL_DEPTH_TEST);								// turn on depth tests
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
+
+
+	//create_field_vertices(unit_field_vertices);
 	create_field_vertices(unit_field_vertices);
 	create_tank_vertices(unit_tank_vertices);
-	//combine_vertices(unit_field_vertices, unit_tank_vertices);
+	//combine_vertices(unit_field_vertices);
+	combine_vertices(unit_field_vertices);
+	combine_vertices(unit_tank_vertices);
+	printf("%d\n", unit_combine_vertices.size());
 	// create vertex buffer; called again when index buffering mode is toggled
-	update_vertex_buffer(unit_tank_vertices, NUM_TESS);
-	//update_vertex_buffer(unit_field_vertices, NUM_TESS);
+	
+	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
+	//update_vertex_buffer(unit_tank_vertices, NUM_TESS);
+	
 	return true;
 }
 

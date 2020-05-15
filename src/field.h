@@ -12,7 +12,7 @@ struct field {
 	float	theta = 0.0f; //rotation angle
 	vec4	color;				// RGBA color in [0,1]
 	//mat4	model_matrix;		// modeling transformation
-	int		creation_val = 3 * 2 * 6;//50 * 3 * 50 * 2;
+	int		creation_val = 3 * 2 * 6;
 };
 
 void create_field_vertices(std::vector<vertex>& v) {
@@ -62,7 +62,7 @@ inline void make_field_part(std::vector<uint>& v, int offset) {
 
 inline void make_field_indices(std::vector<uint>& v, uint N) {
 	//field
-	make_field_part(v, 24);
+	make_field_part(v, N+0);
 }
 
 #endif
