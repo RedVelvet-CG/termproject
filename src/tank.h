@@ -17,7 +17,7 @@ struct sphere {
 	bool	is_dead = false;
 };
 
-void create_circle_vertices(std::vector<vertex>& v, uint N, float xval, float yval, float zval, float diameter) {
+void create_circle_vertices(std::vector<vertex>& v) {
 	//body
 	v.push_back({ vec3(1.f,1.f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(-1.f,1.f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });

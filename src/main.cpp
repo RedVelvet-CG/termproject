@@ -2,6 +2,7 @@
 #include "cgut.h"		// slee's OpenGL utility
 #include "trackball.h"	// virtual trackball
 #include "tank.h"
+#include "wall.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
@@ -46,6 +47,7 @@ int		pauseflag = 0;
 int		planet[10] = { 1,1,1,1,1,1,1,1,1 };
 bool	b_wireframe = false;
 int		enemy_num = 0;
+auto	walls = std::move(create_walls());
 
 // scene objects
 camera		cam;
@@ -65,7 +67,6 @@ void update() {
 	uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
 	//uloc = glGetUniformLocation( program, "model_matrix" );			if(uloc>-1) glUniformMatrix4fv( uloc, 1, GL_TRUE, model_matrix );
 
-	void update_simulation();
 }
 
 void render() {
@@ -91,6 +92,16 @@ void render() {
 		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
 		idx++;
 	}
+
+	/*for (auto& w : walls)
+	{
+		w.update();
+
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+	}*/
+
+
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
 }
@@ -105,6 +116,19 @@ void print_help() {
 	printf("- press ESC or 'q' to terminate the program\n");
 	printf("- press F1 or 'h' to see help\n");
 	printf("- press w to toggle from wireframe mode and solid mode\n");	
+}
+
+std::vector<vertex> create_wall_vertices(std::vector<vertex> v)
+{
+	v.push_back({ vec3(1.f,1.f,1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(-1.f,1.f,1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(-1.f,-1.f,1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(1.f,-1.f,1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(1.f,1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(-1.f,1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	v.push_back({ vec3(-1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
+	v.push_back({ vec3(1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+	return v;
 }
 
 void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
@@ -129,10 +153,6 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (!vertex_array) { printf("%s(): failed to create vertex aray\n", __func__); return; }
 }
 
-void update_simulation()
-{
-}
-
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q)	glfwSetWindowShouldClose(window, GL_TRUE);
@@ -148,36 +168,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 }
 
 void mouse(GLFWwindow* window, int button, int action, int mods) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
-		vec2 npos = cursor_to_ndc(pos, window_size);
-		if (zoom + pan > 0) {
-			zoom = pan = 0;
-			printf("disabled zoom and pan!\n");
-		}
-		if (action == GLFW_PRESS)			tb.begin(cam.view_matrix, npos);
-		else if (action == GLFW_RELEASE)	tb.end();
-	}
-	else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
-		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
-		vec2 npos = cursor_to_ndc(pos, window_size);
-		if (action == GLFW_PRESS) {
-			if (pan == 1) { tb.begin(cam.view_matrix, npos); }
-		}
-		else if (action == GLFW_RELEASE) {
-			if (pan == 1) { tb.end(); }
-		}
-	}
-	else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
-		vec2 npos = cursor_to_ndc(pos, window_size);
-		if (action == GLFW_PRESS) {
-			if (zoom == 1) { tb.begin(cam.view_matrix, npos); }
-		}
-		else if (action == GLFW_RELEASE) {
-			if (zoom == 1) { tb.end(); }
-		}
-	}
+
 }
 
 void motion(GLFWwindow* window, double x, double y) {
@@ -191,7 +182,7 @@ bool user_init() {
 	glEnable(GL_DEPTH_TEST);								// turn on depth tests
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	create_circle_vertices(unit_circle_vertices, NUM_TESS, 0, 0, 0, 1.f);
+	create_circle_vertices(unit_circle_vertices);
 	// create vertex buffer; called again when index buffering mode is toggled
 	update_vertex_buffer(unit_circle_vertices, NUM_TESS);
 	return true;
