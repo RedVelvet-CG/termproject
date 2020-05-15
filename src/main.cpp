@@ -1,15 +1,17 @@
 #include "cgmath.h"		// slee's simple math library
 #include "cgut.h"		// slee's OpenGL utility
+#define STB_IMAGE_IMPLEMENTATION
 #include "trackball.h"	// virtual trackball
 #include"field.h"
 #include "tank.h"
 #include "wall.h"
+#include "stb_image.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
-static const char* universe_background_path = "../src/images/universe.png";
+static const char* brick_path = "../bin/images/brick.jpg";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -30,6 +32,7 @@ ivec2		window_size = ivec2(1280, 720);// cg_default_window_size(); // initial wi
 // OpenGL objects
 GLuint	program = 0;	// ID holder for GPU program
 GLuint	vertex_array = 0;
+GLuint	brick = 0;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -50,6 +53,8 @@ float	timeval = 0;
 int		pauseflag = 0;
 bool	b_wireframe = false;
 
+int mode = 0;  // texture display mode: 0=texcoord, 1=lena, 2=baboon
+
 // scene objects
 camera		cam;
 trackball	tb;
@@ -67,6 +72,7 @@ void update() {
 	// build the model matrix for oscillating scale
 	float t = float(glfwGetTime());
 	GLint uloc;
+	glUniform1i(glGetUniformLocation(program, "mode"), mode);
 	uloc = glGetUniformLocation(program, "view_matrix");			if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
 	uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
 	//uloc = glGetUniformLocation( program, "model_matrix" );			if(uloc>-1) glUniformMatrix4fv( uloc, 1, GL_TRUE, model_matrix );
@@ -92,6 +98,9 @@ void render() {
 
 	for (auto& w : walls) {
 		w.update();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, brick);
+		glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
 		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
 	}
@@ -117,6 +126,40 @@ void print_help() {
 	printf("- press [ or ] key to adjust zoom speed\n");
 	printf("- press < or > key t adjust pan speed\n");
 }
+
+
+GLuint create_texture(const char* image_path, bool b_mipmap)
+{
+	
+	// load the image with vertical flipping
+	image* img = cg_load_image(image_path); if (!img) return -1;
+	int w = img->width, h = img->height;
+	
+	// create a src texture (lena texture)
+	GLuint texture; glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, img->ptr);
+	if (img) delete img; // release image
+
+	// build mipmap
+	if (b_mipmap && glGenerateMipmap)
+	{
+		int mip_levels = 0; for (int k = max(w, h); k; k >>= 1) mip_levels++;
+		for (int l = 1; l < mip_levels; l++)
+			glTexImage2D(GL_TEXTURE_2D, l, GL_RGB8, max(1, w >> l), max(1, h >> l), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	// set up texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, b_mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+
+	return texture;
+}
+
+
 
 void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	static GLuint vertex_buffer = 0;	// ID holder for vertex buffer
@@ -144,6 +187,8 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (vertex_array) glDeleteVertexArrays(1, &vertex_array);
 	vertex_array = cg_create_vertex_array(vertex_buffer, index_buffer);
 	if (!vertex_array) { printf("%s(): failed to create vertex aray\n", __func__); return; }
+
+	brick = create_texture(brick_path, true);		if (brick == -1) printf("brick image not loaded!\n");
 }
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -252,7 +297,6 @@ bool user_init() {
 	combine_vertices(unit_field_vertices);
 	combine_vertices(unit_tank_vertices);
 	combine_vertices(unit_wall_vertices);
-	printf("%d\n", unit_combine_vertices.size());
 	// create vertex buffer; called again when index buffering mode is toggled
 	
 	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
