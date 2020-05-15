@@ -1,6 +1,7 @@
 #include "cgmath.h"		// slee's simple math library
 #include "cgut.h"		// slee's OpenGL utility
 #include "trackball.h"	// virtual trackball
+#include"field.h"
 #include "tank.h"
 
 // global constants
@@ -32,7 +33,8 @@ GLuint	vertex_array = 0;
 // global variables
 int		frame = 0;				// index of rendering frames
 float	t = 0.0f;
-auto	universe = create_universe();
+auto	fields = create_field();
+auto	tanks = create_tank();
 int		zoom = 0;
 int		pan = 0;
 int		zoomval = 50;
@@ -44,7 +46,6 @@ int		rottoggle = 1;
 int		selfrottoggle = 1;
 float	timeval = 0;
 int		pauseflag = 0;
-int		planet[10] = { 1,1,1,1,1,1,1,1,1 };
 bool	b_wireframe = false;
 
 // scene objects
@@ -52,7 +53,9 @@ camera		cam;
 trackball	tb;
 
 // holder of vertices and indices of a unit circle
-std::vector<vertex>	unit_circle_vertices;	// host-side vertices
+std::vector<vertex> unit_field_vertices; // host-side vertices for field
+std::vector<vertex>	unit_tank_vertices;	// host-side vertices for tank
+std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
 
 void update() {
 	// update projection matrix
@@ -71,23 +74,34 @@ void render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
-	int idx = 0;
-	for (auto& c : universe) {
+	
+	/*
+	for (auto& c : fields) {
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "solid_color");		if (uloc > -1) glUniform4fv(uloc, 1, c.color);	// pointer version
 		float t = float(glfwGetTime());
-		if (pauseflag == 0) {
-			timeval += 0.0001f;
-		}
-		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle * planet[idx]) *  //rotation around sun
+		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
 			mat4::translate(c.movval.x, 0, 0) *
-			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle * planet[idx]) * //self-rotation
+			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
 			mat4::translate(0, 0, 0) *
 			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
 			mat4::scale(c.radius, c.radius, c.radius);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
 		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
-		idx++;
+	}*/
+
+	for (auto& c : tanks) {
+		GLint uloc;
+		uloc = glGetUniformLocation(program, "solid_color");		if (uloc > -1) glUniform4fv(uloc, 1, c.color);	// pointer version
+		float t = float(glfwGetTime());
+		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle) *  //rotation around sun
+			mat4::translate(c.movval.x, 0, 0) *
+			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle) * //self-rotation
+			mat4::translate(0, 0, 0) *
+			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
+			mat4::scale(c.radius, c.radius, c.radius);
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
+		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
 	}
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
@@ -109,13 +123,6 @@ void print_help() {
 	printf("*******************Extra features*******************\n");
 	printf("- press [ or ] key to adjust zoom speed\n");
 	printf("- press < or > key t adjust pan speed\n");
-	printf("- press d to diversify self-rotation axis\n");
-	printf("- press ( or ) key to adjust rotation speed\n");
-	printf("- press + or - to adjust self-rotation speed\n");
-	printf("- press t to change rotation direction\n");
-	printf("- press y to change self-rotation direction\n");
-	printf("- press p to pause time\n");
-	printf("- press 1~8 of keypad1~8 to boost/un-boost specific planet's time\n\n");
 }
 
 void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
@@ -125,7 +132,9 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (vertex_buffer)	glDeleteBuffers(1, &vertex_buffer);	vertex_buffer = 0;
 	if (index_buffer)	glDeleteBuffers(1, &index_buffer);	index_buffer = 0;
 	if (vertices.empty()) { printf("[error] vertices is empty.\n"); return; } // check exceptions
-	std::vector<uint> indices = makeindices(N); // create buffers
+	std::vector<uint> indices;
+	make_field_indices(indices, N); // create buffers
+	make_tank_indices(indices, N); // create buffers
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -175,112 +184,6 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			panval = max(0, panval - 10);
 			printf("pans slower!\tpanspeed: %d\n", panval);
 		}
-		else if (key == GLFW_KEY_D) {
-			dflag = 1 - dflag;
-			printf("%s\n", dflag == 1 ? "diversified self-rotation axis" : "neutralized self-rotation axis");
-		}
-		else if (key == GLFW_KEY_0) {
-			rotspeed += 1;
-			printf("rotating in x%d speed\n", rotspeed);
-		}
-		else if (key == GLFW_KEY_9) {
-			rotspeed = max(1, rotspeed - 1);
-			if (rotspeed == 1) {
-				printf("rotating in minimum speed\n");
-			}
-			else {
-				printf("rotating in x%d speed\n", rotspeed);
-			}
-		}
-		else if (key == GLFW_KEY_1) {
-			planet[1]++;
-			printf("Mercury's time flows in x%d speed!\n", planet[1]);
-		}
-		else if (key == GLFW_KEY_KP_1) {
-			planet[1] = max(1, planet[1] - 1);
-			printf("Mercury's time flows in x%d speed!\n", planet[1]);
-		}
-		else if (key == GLFW_KEY_2) {
-			planet[2]++;
-			printf("Venus' time flows in x%d speed!\n", planet[2]);
-		}
-		else if (key == GLFW_KEY_KP_2) {
-			planet[2] = max(1, planet[2] - 1);
-			printf("Venus' time flows in x%d speed!\n", planet[2]);
-		}
-		else if (key == GLFW_KEY_3) {
-			planet[3]++;
-			printf("Earth's time flows in x%d speed!\n", planet[3]);
-		}
-		else if (key == GLFW_KEY_KP_3) {
-			planet[3] = max(1, planet[3] - 1);
-			printf("Earth's time flows in x%d speed!\n", planet[3]);
-		}
-		else if (key == GLFW_KEY_4) {
-			planet[4]++;
-			printf("Mars' time flows in x%d speed!\n", planet[4]);
-		}
-		else if (key == GLFW_KEY_KP_4) {
-			planet[4] = max(1, planet[4] - 1);
-			printf("Mars' time flows in x%d speed!\n", planet[4]);
-		}
-		else if (key == GLFW_KEY_5) {
-			planet[5]++;
-			printf("Jupitor's time flows in x%d speed!\n", planet[5]);
-		}
-		else if (key == GLFW_KEY_KP_5) {
-			planet[5] = max(1, planet[5] - 1);
-			printf("Jupitor's time flows in x%d speed!\n", planet[5]);
-		}
-		else if (key == GLFW_KEY_6) {
-			planet[6]++;
-			printf("Saturn's time flows in x%d speed!\n", planet[6]);
-		}
-		else if (key == GLFW_KEY_KP_6) {
-			planet[6] = max(1, planet[6] - 1);
-			printf("Saturn's time flows in x%d speed!\n", planet[6]);
-		}
-		else if (key == GLFW_KEY_7) {
-			planet[7]++;
-			printf("Uranus' time flows in x%d speed!\n", planet[7]);
-		}
-		else if (key == GLFW_KEY_KP_7) {
-			planet[7] = max(1, planet[7] - 1);
-			printf("Uranus' time flows in x%d speed!\n", planet[7]);
-		}
-		else if (key == GLFW_KEY_8) {
-			planet[8]++;
-			printf("Neptune's time flows in x%d speed!\n", planet[8]);
-		}
-		else if (key == GLFW_KEY_KP_8) {
-			planet[8] = max(1, planet[8] - 1);
-			printf("Neptune's time flows in x%d speed!\n", planet[8]);
-		}
-		else if (key == GLFW_KEY_EQUAL) {
-			selfrotspeed += 1;
-			printf("self-rotating in x%d speed\n", selfrotspeed);
-		}
-		else if (key == GLFW_KEY_MINUS) {
-			selfrotspeed = max(1, selfrotspeed - 1);
-			if (selfrotspeed == 1) {
-				printf("self-rotating in minimum speed\n");
-			}
-			else {
-				printf("selfrotating in x%d speed\n", selfrotspeed);
-			}
-		}
-		else if (key == GLFW_KEY_T) {
-			rottoggle *= -1;
-			printf("%s\n", rottoggle == 1 ? "rotating anti-clockwise from god's view" : "rotating clockwise from god's view");
-		}
-		else if (key == GLFW_KEY_Y) {
-			selfrottoggle *= -1;
-			printf("%s\n", selfrottoggle == 1 ? "rotating anti-clockwise from god's view" : "rotating clockwise from god's view");
-		}
-		else if (key == GLFW_KEY_P) {
-			pauseflag = 1 - pauseflag;
-			printf("%s\n", pauseflag == 1 ? "time paused" : "time resume");
-		}
 		else if (key == GLFW_KEY_W)
 		{
 			b_wireframe = !b_wireframe;
@@ -329,6 +232,15 @@ void motion(GLFWwindow* window, double x, double y) {
 	cam.view_matrix = tb.update(npos, zoom, pan, zoomval, panval);
 }
 
+void combine_vertices(std::vector<vertex> v1, std::vector<vertex> v2) {
+	for (auto i : v1) {
+		unit_combine_vertices.push_back(i);
+	}
+	for (auto i : v2) {
+		unit_combine_vertices.push_back(i);
+	}
+}
+
 bool user_init() {
 	print_help(); // log hotkeys
 	// init GL states
@@ -337,9 +249,12 @@ bool user_init() {
 	glEnable(GL_DEPTH_TEST);								// turn on depth tests
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	create_circle_vertices(unit_circle_vertices, NUM_TESS, 0, 0, 0, 1.f);
+	create_field_vertices(unit_field_vertices);
+	create_tank_vertices(unit_tank_vertices);
+	//combine_vertices(unit_field_vertices, unit_tank_vertices);
 	// create vertex buffer; called again when index buffering mode is toggled
-	update_vertex_buffer(unit_circle_vertices, NUM_TESS);
+	update_vertex_buffer(unit_tank_vertices, NUM_TESS);
+	//update_vertex_buffer(unit_field_vertices, NUM_TESS);
 	return true;
 }
 
