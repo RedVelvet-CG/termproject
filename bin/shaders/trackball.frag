@@ -17,6 +17,7 @@ out vec4 fragColor;
 uniform sampler2D	TEX0;
 uniform sampler2D	TEX1;
 uniform int			mode;
+uniform vec4		color;
 
 void main()
 {
