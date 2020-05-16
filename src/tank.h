@@ -54,10 +54,10 @@ void create_tank_vertices(std::vector<vertex>& v) {
 
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
-	tank mytank = { vec3(-40.0f, -80.0f, 0.0f), -PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
-	tank enemy1 = { vec3(-80.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
-	tank enemy2 = { vec3(0.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
-	tank enemy3 = { vec3(80.0f, 80.0f, 0.0f), PI/2, vec4(0.0f,0.0f,0.0f,0.0f) };
+	tank mytank = { vec3(-40.0f, -80.0f, 0.0f), -PI/2, vec4(0.637f,1.0f,0.611f,0.0f) };
+	tank enemy1 = { vec3(-80.0f, 80.0f, 0.0f), PI/2, vec4(1.0f,0.0f,0.0f,0.0f) };
+	tank enemy2 = { vec3(0.0f, 80.0f, 0.0f), PI/2, vec4(1.0f,0.0f,0.0f,0.0f) };
+	tank enemy3 = { vec3(80.0f, 80.0f, 0.0f), PI/2, vec4(1.0f,0.0f,0.0f,0.0f) };
 	spheres.emplace_back(mytank);
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
