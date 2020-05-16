@@ -12,6 +12,7 @@ static const char* window_name = "2014312455 - A3 Planets in universe";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
+static const char* iron_path = "../bin/images/iron.jpg";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -33,6 +34,7 @@ ivec2		window_size = ivec2(1280, 720);// cg_default_window_size(); // initial wi
 GLuint	program = 0;	// ID holder for GPU program
 GLuint	vertex_array = 0;
 GLuint	brick = 0;
+GLuint	iron = 0;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -72,7 +74,6 @@ void update() {
 	// build the model matrix for oscillating scale
 	float t = float(glfwGetTime());
 	GLint uloc;
-	glUniform1i(glGetUniformLocation(program, "mode"), mode);
 	uloc = glGetUniformLocation(program, "view_matrix");			if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
 	uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
 	//uloc = glGetUniformLocation( program, "model_matrix" );			if(uloc>-1) glUniformMatrix4fv( uloc, 1, GL_TRUE, model_matrix );
@@ -84,6 +85,14 @@ void render() {
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
 	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, brick);
+	glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, iron);
+	glUniform1i(glGetUniformLocation(program, "TEX1"), 1);
+
 	for (auto& f : fields) {
 		f.update();
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
@@ -92,15 +101,25 @@ void render() {
 	
 	for (auto& t : tanks) {
 		t.update();
+		glUniform1i(glGetUniformLocation(program, "mode"), 2);
+		GLint uloc;
+		uloc = glGetUniformLocation(program, "tank_color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
 		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
 	}
 
 	for (auto& w : walls) {
 		w.update();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, brick);
-		glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
+		if (!w.breakable) {
+			glUniform1i(glGetUniformLocation(program, "mode"), 1);
+
+		}
+		else if (w.broken) {
+
+		}
+		else {
+			glUniform1i(glGetUniformLocation(program, "mode"), 0);
+		}
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
 		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
 	}
@@ -189,6 +208,7 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (!vertex_array) { printf("%s(): failed to create vertex aray\n", __func__); return; }
 
 	brick = create_texture(brick_path, true);		if (brick == -1) printf("brick image not loaded!\n");
+	iron = create_texture(iron_path, true);			if (iron == -1) printf("iron image not loaded!\n");
 }
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
