@@ -1,15 +1,11 @@
 #pragma once
 #ifndef __WALL_H__
-<<<<<<< HEAD
 #define __WALL_H__
-=======
 #define __wALL_H__
->>>>>>> gyunghoe
 
 #include "cgmath.h"
 #include "cgut.h"
 
-<<<<<<< HEAD
 struct wall_t
 {
 	vec3 center = vec3(0);
@@ -106,7 +102,7 @@ inline void wall_t::update()
 	};
 
 	model_matrix = translate_matrix * scale_matrix;
-=======
+}
 struct wall {
 	vec3	center = vec3(0);		// 2D position for translation
 	bool breakable = true;
@@ -234,7 +230,6 @@ inline void wall::update() {
 		mat4::translate(center.x, center.y, center.z) *
 		mat4::rotate(vec3(0, 0, 1), 0) *
 		mat4::scale(radius, radius, radius);
->>>>>>> gyunghoe
 }
 
 #endif
