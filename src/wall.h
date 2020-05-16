@@ -1,108 +1,10 @@
 #pragma once
 #ifndef __WALL_H__
-#define __WALL_H__
 #define __wALL_H__
 
 #include "cgmath.h"
 #include "cgut.h"
 
-struct wall_t
-{
-	vec3 center = vec3(0);
-	bool breakable = true;
-	bool broken = false;
-	bool is_base = false;
-	mat4 model_matrix;
-
-	void update();
-};
-
-inline std::vector<wall_t> create_walls()
-{
-	std::vector<wall_t> walls;
-	wall_t w;
-
-	w = { vec3(2.0f, 2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(2.0f, 4.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(2.0f, 6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, 2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, 4.0f, 1.0f),false,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, 6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(0.f, 4.0f, 1.0f),false,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, 2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, 4.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, 6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, 2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, 4.0f, 1.0f),false,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, 6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, -2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, -2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(0.f, -2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(2.0f, -2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, -2.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, -4.0f, 1.0f),false,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, -4.0f, 1.0f),false,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-6.0f, -6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, -6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(0.f, -6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(2.0f, -6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(6.0f, -6.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(2.0f, -8.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(-2.0f, -8.0f, 1.0f),true,false,false };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, -8.0f, 1.0f),true,false,true };
-	walls.emplace_back(w);
-
-	return walls;
-
-}
-
-inline void wall_t::update()
-{
-	mat4 scale_matrix =
-	{
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
-	mat4 translate_matrix =
-	{
-		1, 0, 0, center.x,
-		0, 1, 0, center.y,
-		0, 0, 1, center.z,
-		0, 0, 0, 1
-	};
-
-	model_matrix = translate_matrix * scale_matrix;
-}
 struct wall {
 	vec3	center = vec3(0);		// 2D position for translation
 	bool breakable = true;
@@ -120,14 +22,43 @@ struct wall {
 
 void create_wall_vertices(std::vector<vertex>& v) {
 	//body
-	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
-	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.5f, 0.5f) });
+
+	//front
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 1.f) });
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 1.f) });
+
+	//left
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+
+	//right
+	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+
+	//top
+	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+
+	//bottom
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+
+	//back
+	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
+	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 1.f) });
+	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 1.f) });
+
 }
 
 inline std::vector<wall> create_wall() {
@@ -198,24 +129,24 @@ inline void make_wall_part(std::vector<uint>& v, int offset) {
 	v.push_back(offset + 2);	v.push_back(offset + 3);	v.push_back(offset + 0);
 
 	//left
-	v.push_back(offset + 1);	v.push_back(offset + 5);	v.push_back(offset + 6);
-	v.push_back(offset + 6);	v.push_back(offset + 2);	v.push_back(offset + 1);
+	v.push_back(offset + 4);	v.push_back(offset + 5);	v.push_back(offset + 6);
+	v.push_back(offset + 6);	v.push_back(offset + 7);	v.push_back(offset + 4);
 
 	//right
-	v.push_back(offset + 4);	v.push_back(offset + 0);	v.push_back(offset + 3);
-	v.push_back(offset + 3);	v.push_back(offset + 7);	v.push_back(offset + 4);
+	v.push_back(offset + 8);	v.push_back(offset + 9);	v.push_back(offset + 10);
+	v.push_back(offset + 10);	v.push_back(offset + 11);	v.push_back(offset + 8);
 
 	//top
-	v.push_back(offset + 4);	v.push_back(offset + 5);	v.push_back(offset + 1);
-	v.push_back(offset + 1);	v.push_back(offset + 0);	v.push_back(offset + 4);
+	v.push_back(offset + 12);	v.push_back(offset + 13);	v.push_back(offset + 14);
+	v.push_back(offset + 14);	v.push_back(offset + 15);	v.push_back(offset + 12);
 
 	//bottom
-	v.push_back(offset + 3);	v.push_back(offset + 2);	v.push_back(offset + 6);
-	v.push_back(offset + 6);	v.push_back(offset + 7);	v.push_back(offset + 3);
+	v.push_back(offset + 16);	v.push_back(offset + 17);	v.push_back(offset + 18);
+	v.push_back(offset + 18);	v.push_back(offset + 19);	v.push_back(offset + 16);
 
 	//back
-	v.push_back(offset + 5);	v.push_back(offset + 4);	v.push_back(offset + 7);
-	v.push_back(offset + 7);	v.push_back(offset + 6);	v.push_back(offset + 5);
+	v.push_back(offset + 20);	v.push_back(offset + 21);	v.push_back(offset + 22);
+	v.push_back(offset + 22);	v.push_back(offset + 23);	v.push_back(offset + 20);
 }
 
 inline void make_wall_indices(std::vector<uint>& v, uint N) {
