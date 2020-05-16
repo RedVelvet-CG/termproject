@@ -98,19 +98,11 @@ void render() {
 
 	for (auto& w : walls) {
 		w.update();
-		if (!w.breakable) {
-
-		}
-		else if (w.broken) {
-
-		}
-		else {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, brick);
-			glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
-			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
-			glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
-		}
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, brick);
+		glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
+		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
 	}
 	
 	// swap front and back buffers, and display to screen
