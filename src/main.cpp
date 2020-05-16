@@ -13,6 +13,7 @@ static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
 static const char* iron_path = "../bin/images/iron.jpg";
+static const char* skku_path = "../bin/images/skku.jpg";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -35,6 +36,7 @@ GLuint	program = 0;	// ID holder for GPU program
 GLuint	vertex_array = 0;
 GLuint	brick = 0;
 GLuint	iron = 0;
+GLuint	skku = 0;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -93,15 +95,20 @@ void render() {
 	glBindTexture(GL_TEXTURE_2D, iron);
 	glUniform1i(glGetUniformLocation(program, "TEX1"), 1);
 
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, skku);
+	glUniform1i(glGetUniformLocation(program, "TEX2"), 2);
+
 	for (auto& f : fields) {
 		f.update();
+		glUniform1i(glGetUniformLocation(program, "mode"), 4);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
 		glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
 	}
 	
 	for (auto& t : tanks) {
 		t.update();
-		glUniform1i(glGetUniformLocation(program, "mode"), 2);
+		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "tank_color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
@@ -116,6 +123,9 @@ void render() {
 		}
 		else if (w.broken) {
 
+		}
+		else if (w.is_base) {
+			glUniform1i(glGetUniformLocation(program, "mode"), 2);
 		}
 		else {
 			glUniform1i(glGetUniformLocation(program, "mode"), 0);
@@ -209,6 +219,7 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 
 	brick = create_texture(brick_path, true);		if (brick == -1) printf("brick image not loaded!\n");
 	iron = create_texture(iron_path, true);			if (iron == -1) printf("iron image not loaded!\n");
+	skku = create_texture(skku_path, true);			if (skku == -1) printf("skku image not loaded!\n");
 }
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {

@@ -24,32 +24,32 @@ void create_wall_vertices(std::vector<vertex>& v) {
 	//body
 
 	//front
-	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
-	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
-	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 1.f) });
-	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 1.f) });
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 1.f) });
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 1.f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
 
 	//left
-	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.75f) });
 	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
 	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
-	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.75f) });
 
 	//right
 	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
-	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
-	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.75f) });
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.75f) });
 	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
 
 	//top
 	v.push_back({ vec3(1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
 	v.push_back({ vec3(-1.f,1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
-	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
-	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(-1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.75f) });
+	v.push_back({ vec3(1.f,1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.75f) });
 
 	//bottom
-	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.5f) });
-	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.5f) });
+	v.push_back({ vec3(1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.75f) });
+	v.push_back({ vec3(-1.f,-1.f,0.5f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.75f) });
 	v.push_back({ vec3(-1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(0.f, 0.f) });
 	v.push_back({ vec3(1.f,-1.f,-1.0f), vec3(0.f,0.f,0.0f), vec2(1.f, 0.f) });
 
@@ -118,8 +118,8 @@ inline std::vector<wall> create_wall() {
 	walls.emplace_back(w);
 	w = { vec3(-20.0f, -80.0f, 1.0f),true,false,false };
 	walls.emplace_back(w);
-	//w = { vec3(0.0f, -8.0f, 1.0f),true,false,true };
-	//walls.emplace_back(w);
+	w = { vec3(0.0f, -80.0f, 1.0f),true,false,true };
+	walls.emplace_back(w);
 	return walls;
 }
 
