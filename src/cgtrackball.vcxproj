@@ -60,6 +60,7 @@
     <ClInclude Include="cgmath.h" />
     <ClInclude Include="cgut.h" />
     <ClInclude Include="field.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="tank.h" />
     <ClInclude Include="trackball.h" />
     <ClInclude Include="wall.h" />

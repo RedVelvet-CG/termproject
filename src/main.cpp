@@ -1,18 +1,22 @@
 #include "cgmath.h"		// slee's simple math library
 #include "cgut.h"		// slee's OpenGL utility
+#define STB_IMAGE_IMPLEMENTATION
 #include "trackball.h"	// virtual trackball
+#include"field.h"
 #include "tank.h"
 #include "wall.h"
+#include "stb_image.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
+static const char* brick_path = "../bin/images/brick.jpg";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
 struct camera {
-	vec3	eye = vec3(0, 20,200), at = vec3(0, 0, 0), up = vec3(0, -1, 0);
+	vec3	eye = vec3(0, 30, 300), at = vec3(0, 0, 0), up = vec3(0, 1, 0);
 	mat4	view_matrix = mat4::look_at(eye, at, up);
 	float	fovy = PI / 4.0f; // must be in radian
 	float	aspect = 0.f;
@@ -28,11 +32,14 @@ ivec2		window_size = ivec2(1280, 720);// cg_default_window_size(); // initial wi
 // OpenGL objects
 GLuint	program = 0;	// ID holder for GPU program
 GLuint	vertex_array = 0;
+GLuint	brick = 0;
 
 // global variables
 int		frame = 0;				// index of rendering frames
 float	t = 0.0f;
-auto	universe = create_universe();
+auto	fields = create_field();
+auto	tanks = create_tank();
+auto	walls = create_wall();
 int		zoom = 0;
 int		pan = 0;
 int		zoomval = 50;
@@ -44,17 +51,19 @@ int		rottoggle = 1;
 int		selfrottoggle = 1;
 float	timeval = 0;
 int		pauseflag = 0;
-int		planet[10] = { 1,1,1,1,1,1,1,1,1 };
 bool	b_wireframe = false;
-int		enemy_num = 0;
-auto	walls = std::move(create_walls());
+
+int mode = 0;  // texture display mode: 0=texcoord, 1=lena, 2=baboon
 
 // scene objects
 camera		cam;
 trackball	tb;
 
 // holder of vertices and indices of a unit circle
-std::vector<vertex>	unit_circle_vertices;	// host-side vertices
+std::vector<vertex> unit_field_vertices; // host-side vertices for field
+std::vector<vertex>	unit_tank_vertices;	// host-side vertices for tank
+std::vector<vertex>	unit_wall_vertices;	// host-side vertices for wall
+std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
 
 void update() {
 	// update projection matrix
@@ -63,10 +72,10 @@ void update() {
 	// build the model matrix for oscillating scale
 	float t = float(glfwGetTime());
 	GLint uloc;
+	glUniform1i(glGetUniformLocation(program, "mode"), mode);
 	uloc = glGetUniformLocation(program, "view_matrix");			if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
 	uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
 	//uloc = glGetUniformLocation( program, "model_matrix" );			if(uloc>-1) glUniformMatrix4fv( uloc, 1, GL_TRUE, model_matrix );
-
 }
 
 void render() {
@@ -74,34 +83,36 @@ void render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
-	int idx = 0;
-	for (auto& c : universe) {
-		GLint uloc;
-		uloc = glGetUniformLocation(program, "solid_color");		if (uloc > -1) glUniform4fv(uloc, 1, c.color);	// pointer version
-		float t = float(glfwGetTime());
-		if (pauseflag == 0) {
-			timeval += 0.0001f;
-		}
-		mat4 model_matrix = mat4::rotate(vec3(0, 1, 0), timeval * c.movval.y * rotspeed * rottoggle * planet[idx]) *  //rotation around sun
-			mat4::translate(c.movval.x, 0, 0) *
-			mat4::rotate(vec3(0, 1, 0), timeval * c.theta * selfrotspeed * selfrottoggle * planet[idx]) * //self-rotation
-			mat4::translate(0, 0, 0) *
-			mat4::rotate(vec3(0, 0, 1), timeval * c.theta * dflag) *
-			mat4::scale(c.radius, c.radius, c.radius);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, model_matrix);
-		glDrawElements(GL_TRIANGLES, c.creation_val, GL_UNSIGNED_INT, nullptr);
-		idx++;
+	
+	for (auto& f : fields) {
+		f.update();
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
+		glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
+	}
+	
+	for (auto& t : tanks) {
+		t.update();
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
+		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
 	}
 
-	/*for (auto& w : walls)
-	{
+	for (auto& w : walls) {
 		w.update();
+		if (!w.breakable) {
 
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
-		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
-	}*/
+		}
+		else if (w.broken) {
 
-
+		}
+		else {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, brick);
+			glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
+			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
+			glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
+		}
+	}
+	
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
 }
@@ -115,21 +126,48 @@ void print_help() {
 	printf("\n[help]\n");
 	printf("- press ESC or 'q' to terminate the program\n");
 	printf("- press F1 or 'h' to see help\n");
-	printf("- press w to toggle from wireframe mode and solid mode\n");	
+	printf("- press Home to reset camera\n");
+	printf("- press Control key and right buton of mouse to zoom\n");
+	printf("- press Shift key and middle button of mouse to pan\n");
+	printf("- press w to toggle from wireframe mode and solid mode\n");
+	printf("*******************Extra features*******************\n");
+	printf("- press [ or ] key to adjust zoom speed\n");
+	printf("- press < or > key t adjust pan speed\n");
 }
 
-std::vector<vertex> create_wall_vertices(std::vector<vertex> v)
+
+GLuint create_texture(const char* image_path, bool b_mipmap)
 {
-	v.push_back({ vec3(1.f,1.f,1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
-	v.push_back({ vec3(-1.f,1.f,1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	v.push_back({ vec3(-1.f,-1.f,1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
-	v.push_back({ vec3(1.f,-1.f,1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	v.push_back({ vec3(1.f,1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
-	v.push_back({ vec3(-1.f,1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	v.push_back({ vec3(-1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
-	v.push_back({ vec3(1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	return v;
+	
+	// load the image with vertical flipping
+	image* img = cg_load_image(image_path); if (!img) return -1;
+	int w = img->width, h = img->height;
+	
+	// create a src texture (lena texture)
+	GLuint texture; glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, img->ptr);
+	if (img) delete img; // release image
+
+	// build mipmap
+	if (b_mipmap && glGenerateMipmap)
+	{
+		int mip_levels = 0; for (int k = max(w, h); k; k >>= 1) mip_levels++;
+		for (int l = 1; l < mip_levels; l++)
+			glTexImage2D(GL_TEXTURE_2D, l, GL_RGB8, max(1, w >> l), max(1, h >> l), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	// set up texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, b_mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+
+	return texture;
 }
+
+
 
 void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	static GLuint vertex_buffer = 0;	// ID holder for vertex buffer
@@ -138,7 +176,13 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (vertex_buffer)	glDeleteBuffers(1, &vertex_buffer);	vertex_buffer = 0;
 	if (index_buffer)	glDeleteBuffers(1, &index_buffer);	index_buffer = 0;
 	if (vertices.empty()) { printf("[error] vertices is empty.\n"); return; } // check exceptions
-	std::vector<uint> indices = makeindices(N); // create buffers
+	std::vector<uint> indices;
+	
+	//make_field_indices(indices, N); // create buffers
+	make_field_indices(indices, 0);
+	make_tank_indices(indices, 8); // create buffers
+	make_wall_indices(indices, 32);
+								   
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -151,13 +195,45 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (vertex_array) glDeleteVertexArrays(1, &vertex_array);
 	vertex_array = cg_create_vertex_array(vertex_buffer, index_buffer);
 	if (!vertex_array) { printf("%s(): failed to create vertex aray\n", __func__); return; }
+
+	brick = create_texture(brick_path, true);		if (brick == -1) printf("brick image not loaded!\n");
 }
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q)	glfwSetWindowShouldClose(window, GL_TRUE);
 		else if (key == GLFW_KEY_H || key == GLFW_KEY_F1)	print_help();
-		
+		else if (key == GLFW_KEY_HOME)					cam = camera();
+		else if (key == GLFW_KEY_LEFT_SHIFT) {
+			if (zoom == 1) {
+				printf("disabled zoom!\n");
+			}
+			pan = 1 - pan; zoom = 0;
+			printf("%s\n", pan == 1 ? "enabled pan!" : "disabled pan!");
+		}
+		else if (key == GLFW_KEY_LEFT_CONTROL) {
+			if (pan == 1) {
+				printf("disabled pan!\n");
+			}
+			zoom = 1 - zoom;	pan = 0;
+			printf("%s\n", zoom == 1 ? "enabled zoom!" : "disabled zoom!");
+		}
+		else if (key == GLFW_KEY_RIGHT_BRACKET) {
+			zoomval += 10;
+			printf("zooms faster!\tzoomspeed: %d\n", zoomval);
+		}
+		else if (key == GLFW_KEY_LEFT_BRACKET) {
+			zoomval = max(0, zoomval - 10);
+			printf("zooms slower!\tzoomspeed: %d\n", zoomval);
+		}
+		else if (key == GLFW_KEY_PERIOD) {
+			panval += 10;
+			printf("pans faster!\tpanspeed: %d\n", panval);
+		}
+		else if (key == GLFW_KEY_COMMA) {
+			panval = max(0, panval - 10);
+			printf("pans slower!\tpanspeed: %d\n", panval);
+		}
 		else if (key == GLFW_KEY_W)
 		{
 			b_wireframe = !b_wireframe;
@@ -168,10 +244,48 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 }
 
 void mouse(GLFWwindow* window, int button, int action, int mods) {
-
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
+		vec2 npos = cursor_to_ndc(pos, window_size);
+		if (zoom + pan > 0) {
+			zoom = pan = 0;
+			printf("disabled zoom and pan!\n");
+		}
+		if (action == GLFW_PRESS)			tb.begin(cam.view_matrix, npos);
+		else if (action == GLFW_RELEASE)	tb.end();
+	}
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
+		vec2 npos = cursor_to_ndc(pos, window_size);
+		if (action == GLFW_PRESS) {
+			if (pan == 1) { tb.begin(cam.view_matrix, npos); }
+		}
+		else if (action == GLFW_RELEASE) {
+			if (pan == 1) { tb.end(); }
+		}
+	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
+		vec2 npos = cursor_to_ndc(pos, window_size);
+		if (action == GLFW_PRESS) {
+			if (zoom == 1) { tb.begin(cam.view_matrix, npos); }
+		}
+		else if (action == GLFW_RELEASE) {
+			if (zoom == 1) { tb.end(); }
+		}
+	}
 }
 
 void motion(GLFWwindow* window, double x, double y) {
+	if (!tb.is_tracking()) return;
+	vec2 npos = cursor_to_ndc(dvec2(x, y), window_size);
+	cam.view_matrix = tb.update(npos, zoom, pan, zoomval, panval);
+}
+
+inline void combine_vertices(std::vector<vertex> v) {
+	for (auto i : v) {
+		unit_combine_vertices.push_back(i);
+	}
 }
 
 bool user_init() {
@@ -182,9 +296,20 @@ bool user_init() {
 	glEnable(GL_DEPTH_TEST);								// turn on depth tests
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
-	create_circle_vertices(unit_circle_vertices);
+
+	//create_field_vertices(unit_field_vertices);
+	create_field_vertices(unit_field_vertices);
+	create_tank_vertices(unit_tank_vertices);
+	create_wall_vertices(unit_wall_vertices);
+	//combine_vertices(unit_field_vertices);
+	combine_vertices(unit_field_vertices);
+	combine_vertices(unit_tank_vertices);
+	combine_vertices(unit_wall_vertices);
 	// create vertex buffer; called again when index buffering mode is toggled
-	update_vertex_buffer(unit_circle_vertices, NUM_TESS);
+	
+	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
+	//update_vertex_buffer(unit_tank_vertices, NUM_TESS);
+	
 	return true;
 }
 
