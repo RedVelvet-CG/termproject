@@ -19,14 +19,14 @@ struct field {
 
 void create_field_vertices(std::vector<vertex>& v) {
 	//body
-	v.push_back({ vec3(9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-9.f,9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(9.f,-9.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-9.f,9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(-9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
-	v.push_back({ vec3(9.f,-9.f,-1.3f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,9.f,9.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,9.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,9.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,9.f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,9.f,-9.0f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,9.f,-9.0f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(-9.f,-9.f,-9.0f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
+	v.push_back({ vec3(9.f,-9.f,-9.0f), vec3(0.f,0.f,0.0f), vec2(0, 0) });
 }
 
 inline std::vector<field> create_field() {

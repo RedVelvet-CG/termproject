@@ -159,7 +159,6 @@ void print_help() {
 
 GLuint create_texture(const char* image_path, bool b_mipmap)
 {
-	
 	// load the image with vertical flipping
 	image* img = cg_load_image(image_path); if (!img) return -1;
 	int w = img->width, h = img->height;
