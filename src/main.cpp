@@ -9,7 +9,7 @@
 #include "bullet.h"
 
 // global constants
-static const char* window_name = "2014312455 - A3 Planets in universe";
+static const char* window_name = "Tanks!";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
@@ -53,6 +53,7 @@ bool	b_wireframe = false;
 std::vector<bullet> bullets;
 std::vector<int>	del_bullets;
 std::vector<int>	del_walls;
+std::vector<int>	del_tanks;
 
 
 // scene objects
@@ -153,13 +154,24 @@ void render() {
 			del_wall_checker++;
 		}
 
+		int del_tank_checker = 0;
 		for (auto& t : tanks)
 		{
-			if (!t.isenemy && b.is_mine) continue;
+			if (!t.isenemy && b.is_mine)
+			{
+				del_tank_checker++;
+				continue;
+			}
 			if (abs(t.center.x - b.center.x) <= 10.0f && abs(t.center.y - b.center.y) <= 10.0f)
 			{
 				bullet_break_checker = true;
+				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
+				{
+					t.health--;
+					if (t.health == 0) del_tanks.push_back(del_tank_checker);
+				}
 			}
+			del_tank_checker++;
 		}
 
 		del_bullet_checker++;
@@ -195,7 +207,15 @@ void render() {
 		i++;
 	}
 	del_walls.clear();
-	
+
+	i = 0;
+	for (auto& dt : del_tanks)
+	{
+		tanks.erase(tanks.begin() + dt - i);
+		i++;
+	}
+	del_tanks.clear();
+
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
 }

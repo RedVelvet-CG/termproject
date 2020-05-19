@@ -15,8 +15,6 @@ struct tank {
 	float	dirPI[4] = { 0, -PI / 2, PI, PI / 2};
 	int		creation_val = 3 * 2 * 6 * 3;
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
-	bool	created = false;
-	bool	is_dead = false;
 	float	radius = 10.0f;		// radius
 	vec3	movval = vec3(0);
 	bool	movflag = false;
