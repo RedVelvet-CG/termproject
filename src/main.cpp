@@ -146,6 +146,7 @@ void render() {
 		{
 			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f)
 			{
+				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if(w.breakable) del_walls.push_back(del_wall_checker);
 			}
@@ -320,9 +321,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			player_activate(player, player->dir, false);
 		}
 		else if (key == GLFW_KEY_A) {
-			printf("fire!\n");
 			bullets = create_bullet(bullets, tanks[0]);
-
 		}
 		else if (key == GLFW_KEY_W)
 		{

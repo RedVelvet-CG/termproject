@@ -11,6 +11,7 @@ struct wall {
 	bool broken = false;
 	bool is_base = false;
 	vec3	rot = vec3(0);
+	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	float	theta = 0.0f; //rotation angle
 	float	radius = 10.0f;		// radius
 	vec4	color;				// RGBA color in [0,1]
@@ -59,81 +60,81 @@ void create_wall_vertices(std::vector<vertex>& v) {
 
 }
 
-inline void create_rotate_wall(std::vector<wall>& walls, vec3 r, bool life) {
+inline void create_rotate_wall(std::vector<wall>& walls, vec3 r, bool life, int plane) {
 	wall w;
-	w = { vec3(20.0f, 20.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, 20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 40.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, 40.0f, 100.0f),true,false,false, r, plane};
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, r, plane};
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, r };
+	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 40.0f, 100.0f),false,false,false, r };
+	w = { vec3(60.0f, 40.0f, 100.0f),false,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, r };
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(0.f, 40.0f, 100.0f),false,false,false, r };
+	w = { vec3(0.f, 40.0f, 100.0f),false,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 40.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, 40.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 20.0f, 100.0f),true,false,false, r };
+	w = { vec3(-60.0f, 20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 40.0f, 100.0f),false,false,false, r };
+	w = { vec3(-60.0f, 40.0f, 100.0f),false,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, r };
+	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, r };
+	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(0.f, -20.0f, 100.0f),true,false,false, r };
+	w = { vec3(0.f, -20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, -20.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, -20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -20.0f, 100.0f),true,false,false, r };
+	w = { vec3(60.0f, -20.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -40.0f, 100.0f),false,false,false, r };
+	w = { vec3(-60.0f, -40.0f, 100.0f),false,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -40.0f, 100.0f),false,false,false, r };
+	w = { vec3(60.0f, -40.0f, 100.0f),false,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, r };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(0.f, -60.0f, 100.0f),true,false,false, r };
+	w = { vec3(0.f, -60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, -60.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, -60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, r };
+	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, -80.0f, 100.0f),true,false,false, r };
+	w = { vec3(20.0f, -80.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -80.0f, 100.0f),true,false,false, r };
+	w = { vec3(-20.0f, -80.0f, 100.0f),true,false,false, r, plane };
 	walls.emplace_back(w);
 	if (!life) return;
-	w = { vec3(0.0f, -80.0f, 100.0f),true,false,true, r };
+	w = { vec3(0.0f, -80.0f, 100.0f),true,false,true, r, plane };
 	walls.emplace_back(w);
 }
 
 inline std::vector<wall> create_wall() {
 	std::vector<wall> walls;
 	//front
-	create_rotate_wall(walls, vec3(0, 0, 0), true);
+	create_rotate_wall(walls, vec3(0, 0, 0), true, 0);
 	//left
-	create_rotate_wall(walls, vec3(0, -PI/2, 0), false);
+	create_rotate_wall(walls, vec3(0, -PI/2, 0), false, 1);
 	//right
-	create_rotate_wall(walls, vec3(0, PI / 2, 0), false);
+	create_rotate_wall(walls, vec3(0, PI / 2, 0), false, 2);
 	//back
-	create_rotate_wall(walls, vec3(0, PI, 0), false);
+	create_rotate_wall(walls, vec3(0, PI, 0), false, 5);
 	//top
-	create_rotate_wall(walls, vec3(PI/2, 0, 0), false);
+	create_rotate_wall(walls, vec3(PI/2, 0, 0), false, 3);
 	//bottom
-	create_rotate_wall(walls, vec3(-PI / 2, 0, 0), false);
+	create_rotate_wall(walls, vec3(-PI / 2, 0, 0), false, 4);
 	return walls;
 }
 
