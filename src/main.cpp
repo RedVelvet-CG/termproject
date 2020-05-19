@@ -51,6 +51,8 @@ int		zoomval = 50;
 int		panval = 30;
 bool	b_wireframe = false;
 std::vector<bullet> bullets;
+std::vector<int>	del_bullets;
+std::vector<int>	del_walls;
 
 
 // scene objects
@@ -136,19 +138,58 @@ void render() {
 		
 	}
 
+	int del_bullet_checker = 0;
 	for (auto& b : bullets) {
+		bool bullet_break_checker = false;
+		int del_wall_checker = 0;
+		for (auto& w : walls)
+		{
+			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f)
+			{
+				bullet_break_checker = true;
+				if(w.breakable) del_walls.push_back(del_wall_checker);
+			}
+			del_wall_checker++;
+		}
+
+		for (auto& t : tanks)
+		{
+
+		}
+
+		del_bullet_checker++;
+		if (bullet_break_checker)
+		{
+			del_bullets.push_back(del_bullet_checker);
+		}
 		b.update();
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
-		if (b.theta == 0) b.center.x -= 0.2f;
-		else if (b.theta == -PI / 2) b.center.y += 0.2f;
-		else if (b.theta == PI) b.center.x += 0.2f;
-		else if (b.theta == PI / 2) b.center.y -= 0.2f;
+		if (b.theta == 0) b.center.x -= 0.5f;
+		else if (b.theta == -PI / 2) b.center.y += 0.5f;
+		else if (b.theta == PI) b.center.x += 0.5f;
+		else if (b.theta == PI / 2) b.center.y -= 0.5f;
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE,b.model_matrix);
-		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint))); //wrong?
-
+		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
+		
 	}
+	
+	int i = 1;
+	for (auto& db : del_bullets)
+	{
+		bullets.erase(bullets.begin() + db - i);
+		i++;
+	}
+	del_bullets.clear();
+
+	i = 0;
+	for (auto& dw : del_walls)
+	{
+		walls.erase(walls.begin() + dw - i);
+		i++;
+	}
+	del_walls.clear();
 	
 	// swap front and back buffers, and display to screen
 	glfwSwapBuffers(window);
