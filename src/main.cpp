@@ -6,6 +6,7 @@
 #include "tank.h"
 #include "wall.h"
 #include "stb_image.h"
+#include "bullet.h"
 
 // global constants
 static const char* window_name = "2014312455 - A3 Planets in universe";
@@ -49,6 +50,7 @@ int		pan = 0;
 int		zoomval = 50;
 int		panval = 30;
 bool	b_wireframe = false;
+std::vector<bullet> bullets;
 
 
 // scene objects
@@ -60,6 +62,7 @@ std::vector<vertex> unit_field_vertices; // host-side vertices for field
 std::vector<vertex>	unit_tank_vertices;	// host-side vertices for tank
 std::vector<vertex>	unit_wall_vertices;	// host-side vertices for wall
 std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
+std::vector<vertex> unit_bullet_vertices;
 
 //game variables
 tank*	player = &tanks[0];
@@ -109,7 +112,7 @@ void render() {
 		else if (t.movflag) player_move(&t);
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
-		uloc = glGetUniformLocation(program, "tank_color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
+		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
 		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
 	}
@@ -130,6 +133,20 @@ void render() {
 		}
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
 		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
+	}
+
+	for (auto& b : bullets) {
+		b.update();
+		glUniform1i(glGetUniformLocation(program, "mode"), 4);
+		if (b.theta == 0) b.center.x -= 0.2f;
+		else if (b.theta == -PI / 2) b.center.y += 0.2f;
+		else if (b.theta == PI) b.center.x += 0.2f;
+		else if (b.theta == PI / 2) b.center.y -= 0.2f;
+		GLint uloc;
+		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE,b.model_matrix);
+		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
+
 	}
 	
 	// swap front and back buffers, and display to screen
@@ -202,6 +219,7 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	make_field_indices(indices, 0);
 	make_tank_indices(indices, 8); // create buffers
 	make_wall_indices(indices, 32);
+	make_bullet_indices(indices, 56);
 								   
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
@@ -257,6 +275,8 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		}
 		else if (key == GLFW_KEY_A) {
 			printf("fire!\n");
+			bullets = create_bullet(bullets, tanks[0]);
+
 		}
 		else if (key == GLFW_KEY_W)
 		{
@@ -325,10 +345,12 @@ bool user_init() {
 	create_field_vertices(unit_field_vertices);
 	create_tank_vertices(unit_tank_vertices);
 	create_wall_vertices(unit_wall_vertices);
+	create_bullet_vertices(unit_bullet_vertices);
 	//combine_vertices(unit_field_vertices);
 	combine_vertices(unit_field_vertices);
 	combine_vertices(unit_tank_vertices);
 	combine_vertices(unit_wall_vertices);
+	combine_vertices(unit_bullet_vertices);
 	// create vertex buffer; called again when index buffering mode is toggled
 	
 	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
