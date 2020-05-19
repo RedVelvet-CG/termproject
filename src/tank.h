@@ -11,11 +11,12 @@ struct tank {
 	vec4	color;				// RGBA color in [0,1]
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	bool	isenemy = true;
-	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
+	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {-PI / 2, 0, 0}, {PI / 2, 0, 0}, {0, PI, 0} };
 	bool	movplane = false;
 	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
 	float	dirPI[4] = { 0, -PI / 2, PI, PI / 2};
+	float	rot = 0;
 	int		creation_val = 3 * 2 * 6 * 3;
 	float	radius = 10.0f;		// radius
 	vec3	movval = vec3(0);
@@ -108,7 +109,9 @@ inline void make_tank_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void tank::update() {
-	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
+	model_matrix = mat4::rotate(vec3(1, 0, 0), rot) *  //rotation around sun
+		mat4::translate(0, 0, 0) *
+		mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
 		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) * 
 		mat4::translate(0, 0, 0) *
@@ -128,42 +131,99 @@ inline void player_activate(tank* player, int dir, bool activate){
 	}
 }
 
+inline void move_tank_plane(tank* player, char dir, int plane) {
+	if (player->movplane == false) {
+		player->movplane = true;	player->movflag = false;
+	}
+	else {
+		player->movplane = false;	player->movflag = false;
+		player->plane = plane;
+		if (dir == 'l' || dir == 'r') {
+			player->center = vec3(-player->center.x, player->center.y, player->center.z);
+		}
+		else {
+			player->center = vec3(player->center.x, -player->center.y, player->center.z);
+		}
+	}
+}
+
 inline void player_move(tank* player) {
 	int dir = player->dir;
 	if (player->plane == 0) {
 		if (dir == 0) {
-			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					player->center = vec3(-player->center.x, player->center.y, player->center.z);
-				}
-				return;
-			}
+			if (player->center.x <= -80) { move_tank_plane(player, 'l', 1);	return; }
 			player->center.x -= 0.05f;
 		}
 		else if (dir == 1) {
-			if (player->center.y >= 80) {
-				return;
-			}
+			if (player->center.y >= 80) { move_tank_plane(player, 'u', 3); return; }
 			player->center.y += 0.05f;
 		}
 		else if (dir == 2) {
-			if (player->center.x >= 80) {
-				return;
-			}
+			if (player->center.x >= 80) { move_tank_plane(player, 'r', 2); return; }
 			player->center.x += 0.05f;
 		}
 		else {
-			if (player->center.y <= -80) {
-				return;
-			}
+			if (player->center.y <= -80) { move_tank_plane(player, 'd', 4); return; }
+			player->center.y -= 0.05f;
+		}
+	}
+	else if (player->plane == 1) {
+		if (dir == 0) {
+			if (player->center.x <= -80) { move_tank_plane(player, 'l', 5);	return; }
+			player->center.x -= 0.05f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) { move_tank_plane(player, 'u', 3); return; }
+			player->center.y += 0.05f;
+		}
+		else if (dir == 2) {
+			if (player->center.x >= 80) { move_tank_plane(player, 'r', 0); return; }
+			player->center.x += 0.05f;
+		}
+		else {
+			if (player->center.y <= -80) { move_tank_plane(player, 'd', 4); return; }
+			player->center.y -= 0.05f;
+		}
+	}
+	else if (player->plane == 2) {
+		if (dir == 0) {
+			if (player->center.x <= -80) { move_tank_plane(player, 'l', 0);	return; }
+			player->center.x -= 0.05f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) { move_tank_plane(player, 'u', 3); return; }
+			player->center.y += 0.05f;
+		}
+		else if (dir == 2) {
+			if (player->center.x >= 80) { move_tank_plane(player, 'r', 5); return; }
+			player->center.x += 0.05f;
+		}
+		else {
+			if (player->center.y <= -80) { move_tank_plane(player, 'd', 4); return; }
+			player->center.y -= 0.05f;
+		}
+	}
+	else if (player->plane == 3) {
+		
+	}
+	else if (player->plane == 4) {
+
+	}
+	else if (player->plane == 5) {
+		if (dir == 0) {
+			if (player->center.x <= -80) { move_tank_plane(player, 'l', 2);	return; }
+			player->center.x -= 0.05f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) { move_tank_plane(player, 'u', 3); return; }
+			player->center.y += 0.05f;
+		}
+		else if (dir == 2) {
+			if (player->center.x >= 80) { move_tank_plane(player, 'r', 1); return; }
+			player->center.x += 0.05f;
+		}
+		else {
+			if (player->center.y <= -80) { move_tank_plane(player, 'd', 4); return; }
 			player->center.y -= 0.05f;
 		}
 	}
