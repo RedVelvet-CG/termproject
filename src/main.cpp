@@ -48,16 +48,8 @@ int		zoom = 0;
 int		pan = 0;
 int		zoomval = 50;
 int		panval = 30;
-int		dflag = 0;
-int		rotspeed = 1;
-int		selfrotspeed = 1;
-int		rottoggle = 1;
-int		selfrottoggle = 1;
-float	timeval = 0;
-int		pauseflag = 0;
 bool	b_wireframe = false;
 
-int mode = 0;  // texture display mode: 0=texcoord, 1=lena, 2=baboon
 
 // scene objects
 camera		cam;
@@ -68,6 +60,11 @@ std::vector<vertex> unit_field_vertices; // host-side vertices for field
 std::vector<vertex>	unit_tank_vertices;	// host-side vertices for tank
 std::vector<vertex>	unit_wall_vertices;	// host-side vertices for wall
 std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
+
+//game variables
+tank*	player = &tanks[0];
+int		movdir = 1;
+
 
 void update() {
 	// update projection matrix
@@ -108,6 +105,8 @@ void render() {
 	
 	for (auto& t : tanks) {
 		t.update();
+		if (t.isenemy) enemy_move(player, &t, (float)glfwGetTime()*10000);
+		else if (t.movflag) player_move(&t);
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "tank_color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
@@ -119,7 +118,6 @@ void render() {
 		w.update();
 		if (!w.breakable) {
 			glUniform1i(glGetUniformLocation(program, "mode"), 1);
-
 		}
 		else if (w.broken) {
 
@@ -151,9 +149,11 @@ void print_help() {
 	printf("- press Control key and right buton of mouse to zoom\n");
 	printf("- press Shift key and middle button of mouse to pan\n");
 	printf("- press w to toggle from wireframe mode and solid mode\n");
-	printf("*******************Extra features*******************\n");
+	printf("*******************Game features*******************\n");
 	printf("- press [ or ] key to adjust zoom speed\n");
 	printf("- press < or > key t adjust pan speed\n");
+	printf("- press 's' to stay still\n");
+	printf("- press 'a' to fire\n");
 }
 
 
@@ -240,21 +240,23 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			zoom = 1 - zoom;	pan = 0;
 			printf("%s\n", zoom == 1 ? "enabled zoom!" : "disabled zoom!");
 		}
-		else if (key == GLFW_KEY_RIGHT_BRACKET) {
-			zoomval += 10;
-			printf("zooms faster!\tzoomspeed: %d\n", zoomval);
+		else if (key == GLFW_KEY_LEFT) {
+			player_activate(player, 0, true);
 		}
-		else if (key == GLFW_KEY_LEFT_BRACKET) {
-			zoomval = max(0, zoomval - 10);
-			printf("zooms slower!\tzoomspeed: %d\n", zoomval);
+		else if (key == GLFW_KEY_UP) {
+			player_activate(player, 1, true);
 		}
-		else if (key == GLFW_KEY_PERIOD) {
-			panval += 10;
-			printf("pans faster!\tpanspeed: %d\n", panval);
+		else if (key == GLFW_KEY_RIGHT) {
+			player_activate(player, 2, true);
 		}
-		else if (key == GLFW_KEY_COMMA) {
-			panval = max(0, panval - 10);
-			printf("pans slower!\tpanspeed: %d\n", panval);
+		else if (key == GLFW_KEY_DOWN) {
+			player_activate(player, 3, true);
+		}
+		else if (key == GLFW_KEY_S) {
+			player_activate(player, player->dir, false);
+		}
+		else if (key == GLFW_KEY_A) {
+			printf("fire!\n");
 		}
 		else if (key == GLFW_KEY_W)
 		{
