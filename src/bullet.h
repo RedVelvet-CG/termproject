@@ -12,8 +12,8 @@ struct bullet {
 	float	theta = 0.0f;
 	float	radius = 10.0f;
 	mat4	model_matrix;
-	int		creation_val = 14;
-	vec4	color = (0.75f, 0.75f, 0.75f, 1.f);
+	int		creation_val = 3*14;
+	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
 
 	void update();
 };
@@ -55,8 +55,8 @@ void make_bullet_part(std::vector<uint>& v, int offset) {
 	v.push_back(offset + 4);	v.push_back(offset + 5);	v.push_back(offset + 1);
 	v.push_back(offset + 5);	v.push_back(offset + 4);	v.push_back(offset + 8);
 
-	v.push_back(offset + 5);	v.push_back(offset + 6);	v.push_back(offset + 8);
-	v.push_back(offset + 8);	v.push_back(offset + 6);	v.push_back(offset + 7);
+	v.push_back(offset + 5);	v.push_back(offset + 8);	v.push_back(offset + 6);
+	v.push_back(offset + 8);	v.push_back(offset + 7);	v.push_back(offset + 6);
 
 }
 
@@ -76,11 +76,23 @@ inline void bullet::update() {
 std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
-	bullet new_bullet = { vec3(t.center.x - 1.0f,t.center.y,t.center.z + 0.25f),players_bullet };
-	if (t.dir == 0) new_bullet.theta = 0;
-	else if (t.dir == 1) new_bullet.theta = -PI / 2;
-	else if (t.dir == 2) new_bullet.theta = PI;
-	else if (t.dir == 3) new_bullet.theta = PI / 2;
+	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z + 0.25f),players_bullet };
+	if (t.dir == 0) {
+		new_bullet.theta = 0;
+		new_bullet.center.x -= 10.0f;
+	}
+	else if (t.dir == 1) {
+		new_bullet.theta = -PI / 2;
+		new_bullet.center.y += 10.0f;
+	}
+	else if (t.dir == 2) {
+		new_bullet.theta = PI;
+		new_bullet.center.x += 10.0f;
+	}
+	else if (t.dir == 3) {
+		new_bullet.theta = PI / 2;
+		new_bullet.center.y -= 10.0f;
+	}
 
 	b.emplace_back(new_bullet);
 	return b;

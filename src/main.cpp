@@ -133,11 +133,12 @@ void render() {
 		}
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
 		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
+		
 	}
 
 	for (auto& b : bullets) {
 		b.update();
-		glUniform1i(glGetUniformLocation(program, "mode"), 4);
+		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		if (b.theta == 0) b.center.x -= 0.2f;
 		else if (b.theta == -PI / 2) b.center.y += 0.2f;
 		else if (b.theta == PI) b.center.x += 0.2f;
@@ -145,7 +146,7 @@ void render() {
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE,b.model_matrix);
-		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
+		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint))); //wrong?
 
 	}
 	
