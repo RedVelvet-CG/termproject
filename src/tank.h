@@ -10,6 +10,7 @@ struct tank {
 	int		dir = 0; //0: left	1: up	2: right	3: back
 	vec4	color;				// RGBA color in [0,1]
 	bool	isenemy = true;
+	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
 	float	dirPI[4] = { 0, -PI / 2, PI, PI / 2};
 	int		creation_val = 3 * 2 * 6 * 3;

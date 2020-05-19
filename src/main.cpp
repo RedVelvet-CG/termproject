@@ -154,7 +154,11 @@ void render() {
 
 		for (auto& t : tanks)
 		{
-
+			if (!t.isenemy && b.is_mine) continue;
+			if (abs(t.center.x - b.center.x) <= 10.0f && abs(t.center.y - b.center.y) <= 10.0f)
+			{
+				bullet_break_checker = true;
+			}
 		}
 
 		del_bullet_checker++;
