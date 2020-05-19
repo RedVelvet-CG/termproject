@@ -9,14 +9,12 @@ struct tank {
 	vec3	center = vec3(0);		// 2D position for translation
 	int		dir = 0; //0: left	1: up	2: right	3: back
 	vec4	color;				// RGBA color in [0,1]
-	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	bool	isenemy = true;
-	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
-	bool	movplane = false;
 	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
 	float	dirPI[4] = { 0, -PI / 2, PI, PI / 2};
 	int		creation_val = 3 * 2 * 6 * 3;
+	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	float	radius = 10.0f;		// radius
 	vec3	movval = vec3(0);
 	bool	movflag = false;
@@ -60,10 +58,10 @@ void create_tank_vertices(std::vector<vertex>& v) {
 
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
-	tank mytank = { vec3(-40.0f, -80.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, false};
-	tank enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
-	tank enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
-	tank enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
+	tank mytank = { vec3(-40.0f, -80.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), false};
+	tank enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f) };
+	tank enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f) };
+	tank enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f) };
 	spheres.emplace_back(mytank);
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
@@ -108,11 +106,9 @@ inline void make_tank_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void tank::update() {
-	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
+	model_matrix = mat4::rotate(vec3(0, 1, 0), 0) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) * 
-		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) *
+		mat4::rotate(vec3(0, 0, 0), 0) * //self-rotation
 		mat4::translate(center.x, center.y, center.z) *
 		mat4::rotate(vec3(0, 0, 1), dirPI[dir]) *
 		mat4::scale(radius, radius, radius);
@@ -130,42 +126,21 @@ inline void player_activate(tank* player, int dir, bool activate){
 
 inline void player_move(tank* player) {
 	int dir = player->dir;
-	if (player->plane == 0) {
-		if (dir == 0) {
-			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					player->center = vec3(-player->center.x, player->center.y, player->center.z);
-				}
-				return;
-			}
-			player->center.x -= 0.05f;
-		}
-		else if (dir == 1) {
-			if (player->center.y >= 80) {
-				return;
-			}
-			player->center.y += 0.05f;
-		}
-		else if (dir == 2) {
-			if (player->center.x >= 80) {
-				return;
-			}
-			player->center.x += 0.05f;
-		}
-		else {
-			if (player->center.y <= -80) {
-				return;
-			}
-			player->center.y -= 0.05f;
-		}
+	if (dir == 0) {
+		if (player->plane == 0) if (player->center.x <= -80) return;
+		player->center.x -= 0.05f;
+	}
+	else if (dir == 1) {
+		if (player->plane == 0) if (player->center.y >= 80) return;
+		player->center.y += 0.05f;
+	}
+	else if (dir == 2) {
+		if (player->plane == 0) if (player->center.x >= 80) return;
+		player->center.x += 0.05f;
+	}
+	else {
+		if (player->plane == 0) if (player->center.y <= -80) return;
+		player->center.y -= 0.05f;
 	}
 }
 
