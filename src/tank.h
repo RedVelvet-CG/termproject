@@ -11,6 +11,7 @@ struct tank {
 	vec4	color;				// RGBA color in [0,1]
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	bool	isenemy = true;
+	bool	isactive = false;
 	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
 	bool	movplane = false;
 	int		health = 4;
@@ -21,6 +22,7 @@ struct tank {
 	vec3	movval = vec3(0);
 	bool	movflag = false;
 	float	timestamp = 0.0f;
+	float	bulletstamp = 0.0f;
 
 	inline void update();
 };
@@ -199,6 +201,5 @@ inline void enemy_move(tank* player, tank* enemy, float hash) {
 		player_activate(enemy, (rand() * (unsigned int)hash) % 4, true);
 	}
 }
-
 
 #endif

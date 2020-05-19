@@ -7,6 +7,8 @@
 #include "wall.h"
 #include "stb_image.h"
 #include "bullet.h"
+#include <cstdlib>
+#include <ctime>
 
 // global constants
 static const char* window_name = "Tanks!";
@@ -42,6 +44,7 @@ GLuint	skku = 0;
 // global variables
 int		frame = 0;				// index of rendering frames
 float	t = 0.0f;
+float	start_time = 0.f;
 auto	fields = create_field();
 auto	tanks = create_tank();
 auto	walls = create_wall();
@@ -85,6 +88,8 @@ void update() {
 }
 
 void render() {
+	srand((unsigned int)time(0));
+
 	// clear screen (with background color) and clear depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program); // notify GL that we use our own program
@@ -111,7 +116,15 @@ void render() {
 	
 	for (auto& t : tanks) {
 		t.update();
-		if (t.isenemy) enemy_move(player, &t, (float)glfwGetTime()*10000);
+		if (t.isenemy) {
+			enemy_move(player, &t, (float)glfwGetTime() * 10000);
+			float time_now = (float)glfwGetTime() - start_time;
+			if (time_now - t.bulletstamp > 1.5f) {
+				t.bulletstamp = time_now;
+				int shot_fire_check = rand() % 2;
+				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
+			}
+		}
 		else if (t.movflag) player_move(&t);
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
@@ -157,7 +170,7 @@ void render() {
 		int del_tank_checker = 0;
 		for (auto& t : tanks)
 		{
-			if (!t.isenemy && b.is_mine)
+			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine))
 			{
 				del_tank_checker++;
 				continue;
@@ -427,6 +440,7 @@ bool user_init() {
 void user_finalize() {}
 
 int main(int argc, char* argv[]) {
+	
 	// create window and initialize OpenGL extensions
 	if (!(window = cg_create_window(window_name, window_size.x, window_size.y))) { glfwTerminate(); return 1; }
 	if (!cg_init_extensions(window)) { glfwTerminate(); return 1; }	// version and extensions
@@ -439,6 +453,7 @@ int main(int argc, char* argv[]) {
 	glfwSetMouseButtonCallback(window, mouse);	// callback for mouse click inputs
 	glfwSetCursorPosCallback(window, motion);		// callback for mouse movement
 	// enters rendering/event loop
+	start_time = (float)glfwGetTime();
 	for (frame = 0; !glfwWindowShouldClose(window); frame++) {
 		glfwPollEvents();	// polling and processing of events
 		update();			// per-frame update
