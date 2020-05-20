@@ -119,7 +119,7 @@ void render() {
 		if (t.isenemy) {
 			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks);
 			float time_now = (float)glfwGetTime() - start_time;
-			if (time_now - t.bulletstamp > 1.5f) {
+			if (time_now - t.bulletstamp > 2.0f) {
 				t.bulletstamp = time_now;
 				int shot_fire_check = rand() % 2;
 				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
