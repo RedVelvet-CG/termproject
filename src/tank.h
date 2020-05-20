@@ -168,10 +168,10 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movflag = false;
 				}
 				else {
-					printf("going to top plane!\n");
+					printf("going to bottom plane!\n");
 					player->movplane = false;
 					player->movflag = false;
-					player->plane = 3;
+					player->plane = 4;
 					player->center = vec3(player->center.x, -player->center.y, player->center.z);
 				}
 				return;
@@ -220,10 +220,10 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movflag = false;
 				}
 				else {
-					printf("going to bottom plane!\n");
+					printf("going to top plane!\n");
 					player->movplane = false;
 					player->movflag = false;
-					player->plane = 4;
+					player->plane = 3;
 					player->center = vec3(player->center.x, -player->center.y, player->center.z);
 				}
 				return;
