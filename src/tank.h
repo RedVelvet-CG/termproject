@@ -251,12 +251,12 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.x <= -80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (enemy->center.x - w.center.x <= 20.0f && enemy->center.x > w.center.x && abs(enemy->center.y - w.center.y) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.x - w.center.x <= 20.0f && enemy->center.x > w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
 					if (enemy->plane != t.plane) continue;
-					if (enemy->center.x - t.center.x <= 20.0f && enemy->center.x > t.center.x && abs(enemy->center.y - t.center.y) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.x - t.center.x <= 20.0f && enemy->center.x > t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				enemy->center.x -= 0.1f;
 			}
@@ -266,12 +266,12 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.y >= 80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
 					if (enemy->plane != t.plane) continue;
-					if (t.center.y - enemy->center.y <= 20.0f && t.center.y > enemy->center.y && abs(enemy->center.x - t.center.x) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (t.center.y - enemy->center.y <= 20.0f && t.center.y > enemy->center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				enemy->center.y += 0.1f;
 			}
@@ -281,12 +281,12 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.x >= 80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (w.center.x - enemy->center.x <= 20.0f && enemy->center.x < w.center.x && abs(enemy->center.y - w.center.y) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (w.center.x - enemy->center.x <= 20.0f && enemy->center.x < w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
 					if (enemy->plane != t.plane) continue;
-					if (t.center.x - enemy->center.x <= 20.0f && enemy->center.x < t.center.x && abs(enemy->center.y - t.center.y) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (t.center.x - enemy->center.x <= 20.0f && enemy->center.x < t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				enemy->center.x += 0.1f;
 			}
@@ -296,12 +296,12 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.y <= -80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (enemy->center.y - w.center.y <= 20.0f && enemy->center.y > w.center.y && abs(enemy->center.x - w.center.x) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.y - w.center.y <= 20.0f && enemy->center.y > w.center.y && abs(enemy->center.x - w.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
 					if (enemy->plane != t.plane) continue;
-					if (enemy->center.y - t.center.y <= 20.0f && enemy->center.y > t.center.y && abs(enemy->center.x - t.center.x) < 20.0f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.y - t.center.y <= 20.0f && enemy->center.y > t.center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 				}
 				enemy->center.y -= 0.1f;
 			}
