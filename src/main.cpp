@@ -19,7 +19,7 @@ uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygo
 
 // common structures
 struct camera {
-	vec3	eye = vec3(0, 30, 400), at = vec3(0, 0, 0), up = vec3(0, 1, 0);
+	vec3	eye = vec3(0, 30, 450), at = vec3(0, 0, 0), up = vec3(0, 1, 0);
 	mat4	view_matrix = mat4::look_at(eye, at, up);
 	float	fovy = PI / 4.0f; // must be in radian
 	float	aspect = 0.f;
@@ -145,9 +145,9 @@ void render() {
 		int del_wall_checker = 0;
 		for (auto& w : walls)
 		{
-			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f)
+			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f && abs(w.center.z-b.center.z)<=10.0f)
 			{
-				if (player->plane != w.plane) continue;
+				//if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if(w.breakable) del_walls.push_back(del_wall_checker);
 			}
