@@ -186,6 +186,9 @@ void render() {
 			}
 			del_tank_checker++;
 		}
+		if (b.center.x >= 90 || b.center.x <= -90 || b.center.y >= 90 || b.center.y <= -90) {
+			bullet_break_checker = true;
+		}
 
 		del_bullet_checker++;
 		if (bullet_break_checker)
