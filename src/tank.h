@@ -5,6 +5,7 @@
 #include "cgmath.h"
 #include <random>
 #include "wall.h"
+#include <cmath>
 
 struct tank {
 	vec3	center = vec3(0);		// 2D position for translation
@@ -152,7 +153,15 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
-				if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 19.9f) return;
+				if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
+					if (player->center.y - w.center.y > 19.0f) {
+						player->center.y = ceil(player->center.y);
+					}
+					else if (w.center.y - player->center.y > 19.0f) {
+						player->center.y = floor(player->center.y);
+					}
+					else return;
+				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
@@ -178,7 +187,15 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
-				if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 19.9f) return;
+				if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 19.9f) {
+					if (player->center.x - w.center.x > 19.0f) {
+						player->center.x = ceil(player->center.x);
+					}
+					else if (w.center.x - player->center.x > 19.0f) {
+						player->center.x = floor(player->center.x);
+					}
+					else return;
+				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
@@ -204,7 +221,15 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
-				if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 19.9f) return;
+				if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
+					if (player->center.y - w.center.y > 19.0f) {
+						player->center.y = ceil(player->center.y);
+					}
+					else if (w.center.y - player->center.y > 19.0f) {
+						player->center.y = floor(player->center.y);
+					}
+					else return;
+				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
@@ -230,7 +255,15 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
-				if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) return;
+				if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) {
+					if (player->center.x - w.center.x > 19.0f) {
+						player->center.x = ceil(player->center.x);
+					}
+					else if (w.center.x - player->center.x > 19.0f) {
+						player->center.x = floor(player->center.x);
+					}
+					else return;
+				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
@@ -251,7 +284,17 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.x <= -80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (enemy->center.x - w.center.x <= 20.0f && enemy->center.x > w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.x - w.center.x <= 20.0f && enemy->center.x > w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) {
+						if (enemy->center.y - w.center.y > 19.0f) {
+							enemy->center.y = ceil(enemy->center.y);
+						}
+						else if (w.center.y - enemy->center.y > 19.0f) {
+							enemy->center.y = floor(enemy->center.y);
+						}
+						else {
+							enemy->timestamp += 0.1f;  return;
+						}
+					}
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
@@ -266,7 +309,17 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.y >= 80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+					if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 19.9f) { 
+						if (enemy->center.x - w.center.x > 19.0f) {
+							enemy->center.x = ceil(enemy->center.x);
+						}
+						else if (w.center.x - enemy->center.x > 19.0f) {
+							enemy->center.x = floor(enemy->center.x);
+						}
+						else {
+							enemy->timestamp += 0.1f;  return;
+						}
+					}
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
@@ -281,7 +334,17 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.x >= 80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (w.center.x - enemy->center.x <= 20.0f && enemy->center.x < w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+					if (w.center.x - enemy->center.x <= 20.0f && enemy->center.x < w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) {
+						if (enemy->center.y - w.center.y > 19.0f) {
+							enemy->center.y = ceil(enemy->center.y);
+						}
+						else if (w.center.y - enemy->center.y > 19.0f) {
+							enemy->center.y = floor(enemy->center.y);
+						}
+						else {
+							enemy->timestamp += 0.1f;  return;
+						}
+					}
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
@@ -296,7 +359,17 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->center.y <= -80) { enemy->timestamp = 3.0f;  return; }
 				for (auto& w : walls) {
 					if (enemy->plane != w.plane) continue;
-					if (enemy->center.y - w.center.y <= 20.0f && enemy->center.y > w.center.y && abs(enemy->center.x - w.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+					if (enemy->center.y - w.center.y <= 20.0f && enemy->center.y > w.center.y && abs(enemy->center.x - w.center.x) < 19.9f) {
+						if (enemy->center.x - w.center.x > 19.0f) {
+							enemy->center.x = ceil(enemy->center.x);
+						}
+						else if (w.center.x - enemy->center.x > 19.0f) {
+							enemy->center.x = floor(enemy->center.x);
+						}
+						else {
+							enemy->timestamp += 0.1f;  return;
+						}
+					}
 				}
 				for (auto& t : tanks) {
 					if (enemy->tank_id == t.tank_id) continue;
