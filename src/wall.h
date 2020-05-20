@@ -11,6 +11,7 @@ struct wall {
 	bool broken = false;
 	bool is_base = false;
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
+	int		health = 1;
 	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
 	float	theta = 0.0f; //rotation angle
 	float	radius = 10.0f;		// radius
@@ -117,7 +118,7 @@ inline void create_rotate_wall(std::vector<wall>& walls, bool life, int plane) {
 	w = { vec3(-20.0f, -80.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 	if (!life) return;
-	w = { vec3(0.0f, -80.0f, 100.0f),true,false,true, plane };
+	w = { vec3(0.0f, -80.0f, 100.0f),true,false,true, plane, 5 };
 	walls.emplace_back(w);
 }
 

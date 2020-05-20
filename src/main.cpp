@@ -117,7 +117,7 @@ void render() {
 	for (auto& t : tanks) {
 		t.update();
 		if (t.isenemy) {
-			enemy_move(player, &t, (float)glfwGetTime() * 10000);
+			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks);
 			float time_now = (float)glfwGetTime() - start_time;
 			if (time_now - t.bulletstamp > 1.5f) {
 				t.bulletstamp = time_now;
@@ -125,7 +125,7 @@ void render() {
 				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
 			}
 		}
-		else if (t.movflag) player_move(&t);
+		else if (t.movflag) player_move(&t, walls, tanks);
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);

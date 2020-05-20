@@ -4,12 +4,14 @@
 
 #include "cgmath.h"
 #include <random>
+#include "wall.h"
 
 struct tank {
 	vec3	center = vec3(0);		// 2D position for translation
 	int		dir = 0; //0: left	1: up	2: right	3: back
 	vec4	color;				// RGBA color in [0,1]
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
+	int		tank_id = 0;
 	bool	isenemy = true;
 	bool	isactive = false;
 	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
@@ -62,10 +64,10 @@ void create_tank_vertices(std::vector<vertex>& v) {
 
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
-	tank mytank = { vec3(-40.0f, -80.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, false};
-	tank enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
-	tank enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
-	tank enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0 };
+	tank mytank = { vec3(-40.0f, -80.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false};
+	tank enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,1 };
+	tank enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,2 };
+	tank enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,3 };
 	spheres.emplace_back(mytank);
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
@@ -130,7 +132,7 @@ inline void player_activate(tank* player, int dir, bool activate){
 	}
 }
 
-inline void player_move(tank* player) {
+inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
 	int dir = player->dir;
 	if (player->plane == 0) {
 		if (dir == 0) {
@@ -148,48 +150,117 @@ inline void player_move(tank* player) {
 				}
 				return;
 			}
-			player->center.x -= 0.05f;
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 20.0f) return;
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 20.0f) return;
+			}
+			player->center.x -= 0.1f;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
+				if (player->movplane == false) {
+					player->movplane = true;
+					player->movflag = false;
+				}
+				else {
+					printf("going to top plane!\n");
+					player->movplane = false;
+					player->movflag = false;
+					player->plane = 3;
+					player->center = vec3(player->center.x, -player->center.y, player->center.z);
+				}
 				return;
 			}
-			player->center.y += 0.05f;
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 20.0f) return;
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 20.0f) return;
+			}
+			player->center.y += 0.1f;
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
+				if (player->movplane == false) {
+					player->movplane = true;
+					player->movflag = false;
+				}
+				else {
+					printf("going to right plane!\n");
+					player->movplane = false;
+					player->movflag = false;
+					player->plane = 2;
+					player->center = vec3(-player->center.x, player->center.y, player->center.z);
+				}
 				return;
 			}
-			player->center.x += 0.05f;
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 20.0f) return;
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 20.0f) return;
+			}
+			player->center.x += 0.1f;
 		}
 		else {
 			if (player->center.y <= -80) {
+				if (player->movplane == false) {
+					player->movplane = true;
+					player->movflag = false;
+				}
+				else {
+					printf("going to bottom plane!\n");
+					player->movplane = false;
+					player->movflag = false;
+					player->plane = 4;
+					player->center = vec3(player->center.x, -player->center.y, player->center.z);
+				}
 				return;
 			}
-			player->center.y -= 0.05f;
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 20.0f) return;
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 20.0f) return;
+			}
+			player->center.y -= 0.1f;
 		}
 	}
 }
 
-inline void enemy_move(tank* player, tank* enemy, float hash) {
+inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> walls, std::vector<tank> tanks) {
 	if (player->plane != enemy->plane) return;
-	if (enemy->timestamp < 3.0f) {
+	if (enemy->timestamp < 1.0f) {
 		int dir = enemy->dir;
 		if (dir == 0) {
 			if (enemy->plane == 0) if (enemy->center.x <= -80) { enemy->timestamp = 3.0f;  return; }
-			enemy->center.x -= 0.05f;
+			enemy->center.x -= 0.1f;
 		}
 		else if (dir == 1) {
 			if (enemy->plane == 0) if (enemy->center.y >= 80) { enemy->timestamp = 3.0f;  return; }
-			enemy->center.y += 0.05f;
+			enemy->center.y += 0.1f;
 		}
 		else if (dir == 2) {
 			if (enemy->plane == 0) if (enemy->center.x >= 80) { enemy->timestamp = 3.0f;  return; }
-			enemy->center.x += 0.05f;
+			enemy->center.x += 0.1f;
 		}
 		else {
 			if (enemy->plane == 0) if (enemy->center.y <= -80) { enemy->timestamp = 3.0f;  return; }
-			enemy->center.y -= 0.05f;
+			enemy->center.y -= 0.1f;
 		}
 
 		enemy->timestamp += 0.005f;
