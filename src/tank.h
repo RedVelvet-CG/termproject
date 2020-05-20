@@ -150,6 +150,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 				}
 				return;
 			}
+			else { player->movplane = false; }
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
 				if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 19.9f) return;
@@ -176,6 +177,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 				}
 				return;
 			}
+			else { player->movplane = false; }
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
 				if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 19.9f) return;
@@ -202,6 +204,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 				}
 				return;
 			}
+			else { player->movplane = false; }
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
 				if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 19.9f) return;
@@ -228,6 +231,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 				}
 				return;
 			}
+			else { player->movplane = false; }
 			for (auto& w : walls) {
 				if (player->plane != w.plane) continue;
 				if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) return;
