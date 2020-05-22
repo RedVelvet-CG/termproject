@@ -9,6 +9,7 @@
 struct bullet {
 	vec3	center = vec3(0);
 	bool	is_mine = false;
+	vec3	movvec = { 0,0,0 };
 	float	theta = 0.0f;
 	float	radius = 10.0f;
 	mat4	model_matrix;
@@ -65,35 +66,62 @@ void make_bullet_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void bullet::update() {
+	center += movvec;
+
 	model_matrix = mat4::rotate(vec3(0, 1, 0), 0) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
 		mat4::rotate(vec3(0, 0, 0), 0) * //self-rotation
 		mat4::translate(center.x, center.y, center.z) *
-		mat4::rotate(vec3(0, 0, 1), theta) *
+		mat4::rotate(vec3(0, 0, 1), 0) *
 		mat4::scale(radius, radius, radius);
 }
 
 std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
-	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z + 0.25f),players_bullet };
-	if (t.dir == 0) {
-		new_bullet.theta = 0;
-		new_bullet.center.x -= 10.0f;
+	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet };
+	if (t.plane == 0) {
+		t.center.z += 0.25f;
+		if (t.dir == 0) {new_bullet.movvec.x = -0.5;}
+		else if (t.dir == 1) {new_bullet.movvec.y = +0.5;}
+		else if (t.dir == 2) {new_bullet.movvec.x = +0.5;}
+		else {new_bullet.movvec.y = -0.5;}
 	}
-	else if (t.dir == 1) {
-		new_bullet.theta = -PI / 2;
-		new_bullet.center.y += 10.0f;
+	else if (t.plane == 1) {
+		t.center.x -= 0.25;
+		if (t.dir == 0) { new_bullet.movvec.z = -0.5; }
+		else if (t.dir == 1) { new_bullet.movvec.y = +0.5; }
+		else if (t.dir == 2) { new_bullet.movvec.z = +0.5; }
+		else { new_bullet.movvec.y = -0.5; }
 	}
-	else if (t.dir == 2) {
-		new_bullet.theta = PI;
-		new_bullet.center.x += 10.0f;
+	else if (t.plane == 2) {
+		t.center.x += 0.25;
+		if (t.dir == 0) { new_bullet.movvec.z = +0.5; }
+		else if (t.dir == 1) { new_bullet.movvec.y = +0.5; }
+		else if (t.dir == 2) { new_bullet.movvec.z = -0.5; }
+		else { new_bullet.movvec.y = -0.5; }
 	}
-	else if (t.dir == 3) {
-		new_bullet.theta = PI / 2;
-		new_bullet.center.y -= 10.0f;
+	else if (t.plane == 3) {
+		t.center.y += 0.25;
+		if (t.dir == 0) { new_bullet.movvec.x = -0.5; }
+		else if (t.dir == 1) { new_bullet.movvec.z = -0.5; }
+		else if (t.dir == 2) { new_bullet.movvec.x = +0.5; }
+		else { new_bullet.movvec.z = +0.5; }
 	}
-
+	else if (t.plane == 4) {
+		t.center.x -= 0.25;
+		if (t.dir == 0) { new_bullet.movvec.x = -0.5; }
+		else if (t.dir == 1) { new_bullet.movvec.z = +0.5; }
+		else if (t.dir == 2) { new_bullet.movvec.x = +0.5; }
+		else { new_bullet.movvec.z = -0.5; }
+	}
+	else {
+		t.center.z -= 0.25;
+		if (t.dir == 0) { new_bullet.movvec.x = +0.5; }
+		else if (t.dir == 1) { new_bullet.movvec.y = -0.5; }
+		else if (t.dir == 2) { new_bullet.movvec.x = -0.5; }
+		else { new_bullet.movvec.y = +0.5; }
+	}
 	b.emplace_back(new_bullet);
 	return b;
 }

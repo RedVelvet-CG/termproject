@@ -74,7 +74,7 @@ inline void create_front_wall(std::vector<wall>& walls, bool life, int plane = 0
 	walls.emplace_back(w);
 	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-
+	
 	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, plane };
@@ -84,17 +84,6 @@ inline void create_front_wall(std::vector<wall>& walls, bool life, int plane = 0
 	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-20.0f, 60.0f, 100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-20.0f, 0.0f, 100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-20.0f, -60.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
 
 	w = { vec3(0.0f, 60.0f, 100.0f),false,false,false, plane };

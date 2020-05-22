@@ -167,10 +167,8 @@ void render() {
 	for (auto& b : bullets) {
 		bool bullet_break_checker = false;
 		int del_wall_checker = 0;
-		for (auto& w : walls)
-		{
-			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f && abs(w.center.z - b.center.z)<=10.f)
-			{
+		for (auto& w : walls){
+			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) + abs(w.center.z - b.center.z)<=10.f){
 				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if(w.breakable) del_walls.push_back(del_wall_checker);
@@ -179,14 +177,12 @@ void render() {
 		}
 
 		int del_tank_checker = 0;
-		for (auto& t : tanks)
-		{
-			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine))
-			{
+		for (auto& t : tanks){
+			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine)){
 				del_tank_checker++;
 				continue;
 			}
-			if (abs(t.center.x - b.center.x) <= 10.0f && abs(t.center.y - b.center.y) <= 10.0f)
+			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) + abs(t.center.z-b.center.z)<= 10.0f)
 			{
 				bullet_break_checker = true;
 				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
@@ -202,16 +198,11 @@ void render() {
 		}
 
 		del_bullet_checker++;
-		if (bullet_break_checker)
-		{
+		if (bullet_break_checker){
 			del_bullets.push_back(del_bullet_checker);
 		}
 		b.update();
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
-		if (b.theta == 0) b.center.x -= 0.5f;
-		else if (b.theta == -PI / 2) b.center.y += 0.5f;
-		else if (b.theta == PI) b.center.x += 0.5f;
-		else if (b.theta == PI / 2) b.center.y -= 0.5f;
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE,b.model_matrix);
