@@ -64,15 +64,15 @@ inline void make_field_part(std::vector<uint>& v, int offset) {
 
 inline void make_field_indices(std::vector<uint>& v, uint N) {
 	//field
-	make_field_part(v, N+0);
+	make_field_part(v, N + 0);
 }
 
 inline void field::update() {
-	model_matrix = mat4::rotate(vec3(0, 1, 0),movval.y) *  //rotation around sun
+	model_matrix = mat4::rotate(vec3(0, 1, 0), movval.y) *  //rotation around sun
 		mat4::translate(movval.x, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0),0) * //self-rotation
+		mat4::rotate(vec3(0, 1, 0), 0) * //self-rotation
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 0, 1),0) *
+		mat4::rotate(vec3(0, 0, 1), 0) *
 		mat4::scale(radius, radius, radius);
 }
 
