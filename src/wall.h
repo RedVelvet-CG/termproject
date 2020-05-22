@@ -448,6 +448,7 @@ inline std::vector<wall> create_wall() {
 	std::vector<wall> walls;
 	//front
 	create_front_wall(walls, true);
+	/*
 	//left
 	create_left_wall(walls, false);
 	//right
@@ -458,6 +459,7 @@ inline std::vector<wall> create_wall() {
 	create_bottom_wall(walls, false);
 	//back
 	create_back_wall(walls, false);
+	*/
 	return walls;
 }
 
