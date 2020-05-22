@@ -1,2 +1,5 @@
 #.vs files #
 src/.vs/*
+
+#cgtrackball.exe #
+bin/cgtrackball.exe

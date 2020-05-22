@@ -158,7 +158,7 @@ void render() {
 		int del_wall_checker = 0;
 		for (auto& w : walls)
 		{
-			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f)
+			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f && abs(w.center.z - b.center.z)<=10.f)
 			{
 				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
