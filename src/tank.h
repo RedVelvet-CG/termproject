@@ -134,23 +134,28 @@ inline void player_activate(tank* player, int dir, bool activate){
 	}
 }
 
+inline void move_plane(tank* player, int plane, vec3 movvec, int offset, int lrchange, int udchange) {
+	if (player->movplane == false) {
+		player->movplane = true;
+		player->movflag = false;
+	}
+	else {
+		player->movplane = false;
+		player->movflag = false;
+		player->plane = plane;
+		player->center = movvec;
+		player->diroffset = (player->diroffset + offset) % 4;
+		if (lrchange == 1) { std::swap(player->dirs[0], player->dirs[2]); }
+		if (udchange == 1) { std::swap(player->dirs[1], player->dirs[3]); }
+	}
+}
 
 inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
 	int dir = player->dir;
 	if (player->plane == 0) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					player->center = vec3(-100, player->center.y, 80);
-				}
-				return;
+				move_plane(player, 1, {-100, player->center.y, 80}, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			for (auto& w : walls) {
@@ -166,16 +171,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 3;
-					player->center = vec3(player->center.x, 100, 80);
-				}
+				move_plane(player, 3, {player->center.x, 100, 80 }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -192,17 +188,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to right plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 2;
-					player->center = vec3(100, player->center.y, 80);
-				}
+				move_plane(player, 2, { 100, player->center.y, 80 }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -219,17 +205,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 		}
 		else {
 			if (player->center.y <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to top plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 4;
-					player->center = vec3(player->center.x, -100, 80);
-				}
+				move_plane(player, 4, { player->center.x, -100, 80 }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -246,385 +222,150 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 		}
 	}
 	else if (player->plane == 1) {
-		//left -> front is (-x, y, -100)
 		if (dir == 0) {
 			if (player->center.z <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 5;
-					std::swap(player->dirs[1], player->dirs[3]);
-					player->center = vec3(-80, player->center.y, -100);
-				}
-				return;
+				move_plane(player, 5, { -80, player->center.y, -100 }, 0, 0, 1);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z -= 0.1f;
 		}
-		if (dir == 1) {
+		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 3;
-					player->diroffset = (player->diroffset + 1) % 4;
-					player->center = vec3(-80, 100, player->center.z);
-				}
-				return;
+				move_plane(player, 3, { -80, 100, player->center.z}, 1, 0, 0);		return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
 		}
-		if (dir == 2) {
+		else if (dir == 2) {
 			if (player->center.z >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 0;
-					player->center = vec3(-80, player->center.y, 100);
-				}
-				return;
+				move_plane(player, 0, { -80, player->center.y, 100}, 0, 0, 0);		return;
 			}
 			else { player->movplane = false; }
 			player->center.z += 0.1f;
 		}
-		if (dir == 3) {
+		else {
 			if (player->center.y <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 4;
-					player->diroffset = (player->diroffset + 4 - 1) % 4;
-					player->center = vec3(-80, -100, player->center.z);
-				}
-				return;
+				move_plane(player, 4, { -80, -100, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y -= 0.1f;
 		}
 	}
 	else if (player->plane == 2) {
-	//left -> front is (-x, y, -100)
 		if (dir == 0) {
 			if (player->center.z >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 0;
-					player->center = vec3(80, player->center.y, 100);
-				}
-				return;
+				move_plane(player, 4, { 80, player->center.y, 100 }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z += 0.1f;
 		}
-		if (dir == 1) {
+		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 3;
-					player->diroffset = (player->diroffset + 4 - 1) % 4;
-					player->center = vec3(80, 100, player->center.z);
-				}
-				return;
+				move_plane(player, 3, { 80, 100, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
 		}
-		if (dir == 2) {
+		else if (dir == 2) {
 			if (player->center.z <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 5;
-					player->center = vec3(80, player->center.y, -100);
-				}
-				return;
+				move_plane(player, 5, { 80, player->center.y, -100 }, 0, 0, 1);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z -= 0.1f;
 		}
-		if (dir == 3) {
+		else {
 			if (player->center.y <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 4;
-					player->diroffset = (player->diroffset + 1) % 4;
-					player->center = vec3(80, -100, player->center.z);
-				}
-				return;
+				move_plane(player, 4, { 80, -100, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y -= 0.1f;
 		}
 	}
 	else if (player->plane == 3) {
-	//left -> front is (-x, y, -100)
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					player->diroffset = (player->diroffset + 4 -1) % 4;
-					player->center = vec3(-100, 80, player->center.z);
-				}
-				return;
+				move_plane(player, 1, { -100, 80, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
 		}
 		if (dir == 1) {
 			if (player->center.z <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 5;
-					//std::swap(player->dirPI[1], player->dirPI[3]);
-					std::swap(player->dirs[0], player->dirs[2]);
-					//std::swap(player->dirPI[0], player->dirPI[2]);
-					player->center = vec3(player->center.x, 80, -100);
-				}
-				return;
+				move_plane(player, 5, { player->center.x, 80, -100 }, 0, 1, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z -= 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 2;
-					player->diroffset = (player->diroffset + 1) % 4;
-					player->center = vec3(100, 80, player->center.z);
-				}
-				return;
+				move_plane(player, 2, { 100, 80, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x += 0.1f;
 		}
 		if (dir == 3) {
 			if (player->center.z >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 0;
-					player->center = vec3(player->center.x, 80, 100);
-				}
-				return;
+				move_plane(player, 0, { player->center.x, 80, 100 }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z += 0.1f;
 		}
 	}
 	else if (player->plane == 4) {
-	//left -> front is (-x, y, -100)
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					player->diroffset = (player->diroffset + 1) % 4;
-					player->center = vec3(-100, -80, player->center.z);
-				}
-				return;
+				move_plane(player, 1, { -100, -80, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
 		}
 		if (dir == 1) {
 			if (player->center.z >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 0;
-					player->center = vec3(player->center.x, -80, 100);
-				}
-				return;
+				move_plane(player, 0, { player->center.x, -80, 100 }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z += 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 2;
-					player->diroffset = (player->diroffset + 4 - 1) % 4;
-					player->center = vec3(100, -80, player->center.z);
-				}
-				return;
+				move_plane(player, 2, { 100, -80, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x += 0.1f;
 		}
 		if (dir == 3) {
 			if (player->center.z <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					printf("going to left plane!\n");
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 5;
-					player->diroffset = (player->diroffset + 2) % 4;
-					player->center = vec3(player->center.x, -80, -100);
-				}
-				return;
+				move_plane(player, 5, { player->center.x, -80, -100 }, 2, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.z -= 0.1f;
 		}
-	}
-	
+	}	
 	else if (player->plane == 5) {
-		//left -> front is (-x, y, -100)
 		if (dir == 0) {
 			if (player->center.x >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 2;
-					std::swap(player->dirs[1], player->dirs[3]);
-					player->center = vec3(100, player->center.y, -80);
-				}
-				return;
+				move_plane(player, 2, { 100, player->center.y, -80 }, 0, 0, 1);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x += 0.1f;
 		}
 		if (dir == 1) {
 			if (player->center.y <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 4;
-					std::swap(player->dirs[0], player->dirs[2]);
-					player->center = vec3(player->center.x, -100, -80);
-				}
-				return;
+				move_plane(player, 4, { player->center.x, -100, -80 }, 0, 1, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y -= 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x <= -80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 1;
-					//player->diroffset = (player->diroffset + 2) % 4;
-					std::swap(player->dirs[1], player->dirs[3]);
-					player->center = vec3(-100, player->center.y, -80);
-				}
-				return;
+				move_plane(player, 1, { -100, player->center.y, -80 }, 0, 0, 1);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
 		}
 		if (dir == 3) {
 			if (player->center.y >= 80) {
-				if (player->movplane == false) {
-					player->movplane = true;
-					player->movflag = false;
-				}
-				else {
-					player->movplane = false;
-					player->movflag = false;
-					player->plane = 3;
-					std::swap(player->dirs[0], player->dirs[2]);
-					player->center = vec3(player->center.x, 100, -80);
-				}
-				return;
+				move_plane(player, 3, { player->center.x, 100, -80 }, 0, 1, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
