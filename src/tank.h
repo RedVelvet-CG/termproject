@@ -18,7 +18,7 @@ struct tank {
 	bool	movplane = false;
 	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
-	float	dirPI[4] = { 0, -PI / 2, PI, PI / 2};
+	//float	dirPI[4] = { 0, -PI / 2, -PI, PI / 2};
 	int		creation_val = 3 * 2 * 6 * 3;
 	float	radius = 10.0f;		// radius
 	vec3	movval = vec3(0);
@@ -26,6 +26,7 @@ struct tank {
 	float	timestamp = 0.0f;
 	float	bulletstamp = 0.0f;
 	int		diroffset = 0;
+	int		dirs[4] = { 0,1,2,3 };
 
 	inline void update();
 };
@@ -125,7 +126,7 @@ inline void tank::update() {
 
 inline void player_activate(tank* player, int dir, bool activate){
 	if (activate) {
-		player->dir = (dir + player->diroffset) % 4;
+		player->dir = player->dirs[(dir + player->diroffset) % 4];
 		player->movflag = true;
 	}
 	else {
@@ -257,6 +258,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movplane = false;
 					player->movflag = false;
 					player->plane = 5;
+					std::swap(player->dirs[1], player->dirs[3]);
 					player->center = vec3(-80, player->center.y, -100);
 				}
 				return;
@@ -425,7 +427,8 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movplane = false;
 					player->movflag = false;
 					player->plane = 5;
-					//player->diroffset = (player->diroffset + 2) % 4;
+					//std::swap(player->dirPI[1], player->dirPI[3]);
+					std::swap(player->dirs[0], player->dirs[2]);
 					//std::swap(player->dirPI[0], player->dirPI[2]);
 					player->center = vec3(player->center.x, 80, -100);
 				}
@@ -485,8 +488,8 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movplane = false;
 					player->movflag = false;
 					player->plane = 1;
-					player->diroffset = (player->diroffset + 4 - 1) % 4;
-					player->center = vec3(-100, 80, player->center.z);
+					player->diroffset = (player->diroffset + 1) % 4;
+					player->center = vec3(-100, -80, player->center.z);
 				}
 				return;
 			}
@@ -509,7 +512,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 				return;
 			}
 			else { player->movplane = false; }
-			player->center.z -= 0.1f;
+			player->center.z += 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -563,12 +566,31 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movplane = false;
 					player->movflag = false;
 					player->plane = 2;
+					std::swap(player->dirs[1], player->dirs[3]);
 					player->center = vec3(100, player->center.y, -80);
 				}
 				return;
 			}
 			else { player->movplane = false; }
 			player->center.x += 0.1f;
+		}
+		if (dir == 1) {
+			if (player->center.y <= -80) {
+				if (player->movplane == false) {
+					player->movplane = true;
+					player->movflag = false;
+				}
+				else {
+					player->movplane = false;
+					player->movflag = false;
+					player->plane = 4;
+					std::swap(player->dirs[0], player->dirs[2]);
+					player->center = vec3(player->center.x, -100, -80);
+				}
+				return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x <= -80) {
@@ -580,12 +602,32 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					player->movplane = false;
 					player->movflag = false;
 					player->plane = 1;
+					//player->diroffset = (player->diroffset + 2) % 4;
+					std::swap(player->dirs[1], player->dirs[3]);
 					player->center = vec3(-100, player->center.y, -80);
 				}
 				return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.y >= 80) {
+				if (player->movplane == false) {
+					player->movplane = true;
+					player->movflag = false;
+				}
+				else {
+					player->movplane = false;
+					player->movflag = false;
+					player->plane = 3;
+					std::swap(player->dirs[0], player->dirs[2]);
+					player->center = vec3(player->center.x, 100, -80);
+				}
+				return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
 		}
 	}
 	
