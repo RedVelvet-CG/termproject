@@ -20,9 +20,10 @@ static const char* brick_path = "../bin/images/brick.jpg";
 static const char* iron_path = "../bin/images/iron.jpg";
 static const char* skku_path = "../bin/images/skku.jpg";
 static const char* fire_sound_path = "../bin/sounds/tank_fire.wav";
+static const char* tank_moving_sound_path = "../bin/sounds/tank_moving.wav";
+static const char* tank_stop_sound_path = "../bin/sounds/tank_stop.wav";
 static const char* base_attack_sound_path = "../bin/sounds/Base_under_attack.mp3";
 static const char* base_explode_sound_path = "../bin/sounds/base_explode.wav";
-static const char* backgroundmusic_path = "../bin/sounds/bgm.mp3";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -51,9 +52,10 @@ GLuint	skku = 0;
 // irrKlang objects
 irrklang::ISoundEngine* engine;
 irrklang::ISoundSource* fire_sound = nullptr;
+irrklang::ISoundSource* tank_moving_sound = nullptr;
+irrklang::ISoundSource* tank_stop_sound = nullptr;
 irrklang::ISoundSource* base_explode_sound = nullptr;
 irrklang::ISoundSource* base_attack_sound = nullptr;
-irrklang::ISoundSource* bgm = nullptr;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -141,7 +143,13 @@ void render() {
 			}
 		}
 		else if (t.movflag) player_move(&t, walls, tanks);
-		
+		if (!t.isenemy && !t.is_moving) {
+			if (!(engine->isCurrentlyPlaying(tank_stop_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_stop_sound, true);
+			}
+
+		}
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
@@ -173,7 +181,7 @@ void render() {
 		bool bullet_break_checker = false;
 		int del_wall_checker = 0;
 		for (auto& w : walls){
-			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) + abs(w.center.z - b.center.z)<=10.f){
+			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) <= 10.0f && w.plane == b.plane) {
 				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if(w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
@@ -197,7 +205,7 @@ void render() {
 				del_tank_checker++;
 				continue;
 			}
-			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) + abs(t.center.z-b.center.z)<= 10.0f)
+			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane==b.plane)
 			{
 				bullet_break_checker = true;
 				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
@@ -208,7 +216,7 @@ void render() {
 			}
 			del_tank_checker++;
 		}
-		if (abs(b.center.x)+abs(b.center.y)+abs(b.center.z)>=280) {
+		if (abs(b.center.x)+abs(b.center.y)>=180) {
 			bullet_break_checker = true;
 		}
 
@@ -360,18 +368,38 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		}
 		else if (key == GLFW_KEY_LEFT) {
 			player_activate(player, 0, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_moving_sound, true);
+			}
 		}
 		else if (key == GLFW_KEY_UP) {
 			player_activate(player, 1, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_moving_sound, true);
+			}
 		}
 		else if (key == GLFW_KEY_RIGHT) {
 			player_activate(player, 2, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_moving_sound, true);
+			}
 		}
 		else if (key == GLFW_KEY_DOWN) {
 			player_activate(player, 3, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_moving_sound, true);
+			}
 		}
 		else if (key == GLFW_KEY_S) {
 			player_activate(player, player->dir, false);
+			if (!(engine->isCurrentlyPlaying(tank_stop_sound))) {
+				engine->stopAllSounds();
+				engine->play2D(tank_stop_sound, true);
+			}
 		}
 		else if (key == GLFW_KEY_A) {
 			bullets = create_bullet(bullets, tanks[0]);
@@ -459,16 +487,17 @@ bool user_init() {
 	if (!engine) return false;
 	
 	fire_sound = engine->addSoundSourceFromFile(fire_sound_path);
+	tank_moving_sound = engine->addSoundSourceFromFile(tank_moving_sound_path);
+	tank_stop_sound = engine->addSoundSourceFromFile(tank_stop_sound_path);
 	base_attack_sound = engine->addSoundSourceFromFile(base_attack_sound_path);
 	base_explode_sound = engine->addSoundSourceFromFile(base_explode_sound_path);
-	bgm = engine->addSoundSourceFromFile(backgroundmusic_path);
 
 	fire_sound->setDefaultVolume(0.4f);
+	tank_moving_sound->setDefaultVolume(0.4f);
+	tank_stop_sound->setDefaultVolume(0.4f);
 	base_attack_sound->setDefaultVolume(0.4f);
 	base_explode_sound->setDefaultVolume(0.4f);
-	bgm->setDefaultVolume(0.4f);
 
-	engine->play2D(bgm, true);
 
 	return true;
 }

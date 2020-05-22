@@ -15,7 +15,7 @@ struct tank {
 	int		tank_id = 0;
 	bool	isenemy = true;
 	bool	isactive = false;
-	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {PI / 2, 0, 0}, {-PI / 2, 0, 0}, {0, PI, 0} };
+	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {-PI / 2, 0, 0}, {PI / 2, 0, 0}, {0, PI, 0} };
 	bool	movplane = false;
 	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
@@ -28,6 +28,8 @@ struct tank {
 	float	bulletstamp = 0.0f;
 	int		diroffset = 0;
 	int		dirs[4] = { 0,1,2,3 };
+	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2};
+	bool	is_moving = true;
 
 	inline void update();
 };
@@ -69,7 +71,8 @@ inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
 	tank mytank = { vec3(-40.0f, 0.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false};
 	spheres.emplace_back(mytank);
-	//front enemy
+
+	//front enemy	
 	tank enemy1, enemy2, enemy3, enemy4;
 	enemy1 = { vec3(-60.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,1 };
 	enemy2 = { vec3(-60.0f, -80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,2 };
@@ -79,56 +82,57 @@ inline std::vector<tank> create_tank() {
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//left enemy
-	enemy1 = { vec3(-100.0f, 40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
-	enemy2 = { vec3(-100.0f, -40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
-	enemy3 = { vec3(-100.0f, 40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,7 };
-	enemy4 = { vec3(-100.0f, -40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,8 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,7 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,8 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//right enemy
-	enemy1 = { vec3(100.0f, 40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,9 };
-	enemy2 = { vec3(100.0f, -40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,10 };
-	enemy3 = { vec3(100.0f, 40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,11 };
-	enemy4 = { vec3(100.0f, -40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,12 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,9 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,10 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,11 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2, 12 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
 
 	//top enemy
-	enemy1 = { vec3(-40.0f, 100.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,13 };
-	enemy2 = { vec3(-40.0f, 100.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,14 };
-	enemy3 = { vec3(40.0f, 100.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,15 };
-	enemy4 = { vec3(40.0f, 100.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,16 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,13 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,14 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,15 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,16 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//bottom enemy
-	enemy1 = { vec3(-20.0f, -100.0f, -20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,13 };
-	enemy2 = { vec3(-20.0f, -100.0f, 20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,14 };
-	enemy3 = { vec3(20.0f, -100.0f, -20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,15 };
-	enemy4 = { vec3(20.0f, -100.0f, 20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,16 };
+	enemy1 = { vec3(-20.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,17 };
+	enemy2 = { vec3(-20.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,18 };
+	enemy3 = { vec3(20.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,19 };
+	enemy4 = { vec3(20.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,20 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
 
 	//back enemy
-	enemy1 = { vec3(-20.0f, 0.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,17 };
-	enemy2 = { vec3(20.0f, 0.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,18 };
-	enemy3 = { vec3(0.0f, -20.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,19 };
-	enemy4 = { vec3(0.0f, 20.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,20 };
+	enemy1 = { vec3(-20.0f, 0.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,21 };
+	enemy2 = { vec3(0.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,22 };
+	enemy3 = { vec3(0.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,23 };
+	enemy4 = { vec3(20.0f, 0.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,24 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
+
 	return spheres;
 }
 
@@ -168,13 +172,13 @@ inline void make_tank_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void tank::update() {
-	model_matrix = mat4::rotate(vec3(1, 0, 0), 0) *  //rotation around sun
+	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0), 0) * 
+		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) * 
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 0, 1), 0) *
+		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) *
 		mat4::translate(center.x, center.y, center.z) *
-		mat4::rotate(vec3(0, 0, 1), 0) *
+		mat4::rotate(vec3(0, 0, 1), dirvec[dir]) *
 		mat4::scale(radius, radius, radius);
 }
 
@@ -185,6 +189,7 @@ inline void player_activate(tank* player, int dir, bool activate){
 	}
 	else {
 		player->movflag = false;
+		player->is_moving = false;
 	}
 }
 
@@ -199,6 +204,7 @@ inline void move_plane(tank* player, int plane, vec3 movvec, int offset, int lrc
 		player->plane = plane;
 		player->center = movvec;
 		player->diroffset = (player->diroffset + offset) % 4;
+		player->dir = (player->dir + offset) % 4;
 		if (lrchange == 1) { std::swap(player->dirs[0], player->dirs[2]); }
 		if (udchange == 1) { std::swap(player->dirs[1], player->dirs[3]); }
 	}
@@ -206,10 +212,11 @@ inline void move_plane(tank* player, int plane, vec3 movvec, int offset, int lrc
 
 inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
 	int dir = player->dir;
+	player->is_moving = true;
 	if (player->plane == 0) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				move_plane(player, 1, {-100, player->center.y, 80}, 0, 0, 0);	return;
+				move_plane(player, 1, {-player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			for (auto& w : walls) {
@@ -221,19 +228,25 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.y - player->center.y > 19.0f) {
 						player->center.y = floor(player->center.y);
 					}
-					else return;
+					else {
+						player->is_moving = false;
+						return;
+					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) return;
+				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
 			}
 			player->center.x -= 0.1f;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				move_plane(player, 3, {player->center.x, 100, 80 }, 0, 0, 0);
+				move_plane(player, 3, { player->center.x, -player->center.y, player->center.z }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -246,19 +259,25 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.x - player->center.x > 19.0f) {
 						player->center.x = floor(player->center.x);
 					}
-					else return;
+					else {
+						player->is_moving = false;
+						return;
+					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) return;
+				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
 			}
 			player->center.y += 0.1f;
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
-				move_plane(player, 2, { 100, player->center.y, 80 }, 0, 0, 0);
+				move_plane(player, 2, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -271,19 +290,25 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.y - player->center.y > 19.0f) {
 						player->center.y = floor(player->center.y);
 					}
-					else return;
+					else {
+						player->is_moving = false;
+						return;
+					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) return;
+				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
 			}
 			player->center.x += 0.1f;
 		}
 		else {
 			if (player->center.y <= -80) {
-				move_plane(player, 4, { player->center.x, -100, 80 }, 0, 0, 0);
+				move_plane(player, 4, { player->center.x, -player->center.y, player->center.z }, 0, 0, 0);
 				return;
 			}
 			else { player->movplane = false; }
@@ -296,42 +321,78 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.x - player->center.x > 19.0f) {
 						player->center.x = floor(player->center.x);
 					}
-					else return;
+					else {
+						player->is_moving = false;
+						return;
+					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) return;
+				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
 			}
 			player->center.y -= 0.1f;
 		}
 	}
 	else if (player->plane == 1) {
 		if (dir == 0) {
-			if (player->center.z <= -80) {
-				move_plane(player, 5, { -80, player->center.y, -100 }, 0, 0, 1);	return;
+			if (player->center.x <= -80) {
+				move_plane(player, 5, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
-			player->center.z -= 0.1f;
+			player->center.x -= 0.1f;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				move_plane(player, 3, { -80, 100, player->center.z}, 1, 0, 0);		return;
+				move_plane(player, 3, { -player->center.y, -player->center.x, player->center.z }, 1, 0, 0);		return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
 		}
 		else if (dir == 2) {
-			if (player->center.z >= 80) {
-				move_plane(player, 0, { -80, player->center.y, 100}, 0, 0, 0);		return;
+			if (player->center.x >= 80) {
+				move_plane(player, 0, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);		return;
 			}
 			else { player->movplane = false; }
-			player->center.z += 0.1f;
+			player->center.x += 0.1f;
 		}
 		else {
 			if (player->center.y <= -80) {
-				move_plane(player, 4, { -80, -100, player->center.z }, 3, 0, 0);	return;
+				move_plane(player, 4, { player->center.y, player->center.x, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
+	}
+	else if (player->plane == 1) {
+		if (dir == 0) {
+			if (player->center.x <= -80) {
+				move_plane(player, 5, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x -= 0.1f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, { -player->center.y, -player->center.x, player->center.z }, 1, 0, 0);		return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
+		}
+		else if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 0, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);		return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		else {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { player->center.y, player->center.x, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y -= 0.1f;
@@ -339,29 +400,29 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 	}
 	else if (player->plane == 2) {
 		if (dir == 0) {
-			if (player->center.z >= 80) {
-				move_plane(player, 4, { 80, player->center.y, 100 }, 0, 0, 0);	return;
+			if (player->center.x <= -80) {
+				move_plane(player, 0, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
-			player->center.z += 0.1f;
+			player->center.x -= 0.1f;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
-				move_plane(player, 3, { 80, 100, player->center.z }, 3, 0, 0);	return;
+				move_plane(player, 3, { player->center.y, player->center.x, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
 		}
 		else if (dir == 2) {
-			if (player->center.z <= -80) {
-				move_plane(player, 5, { 80, player->center.y, -100 }, 0, 0, 1);	return;
+			if (player->center.x >= 80) {
+				move_plane(player, 5, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
-			player->center.z -= 0.1f;
+			player->center.x += 0.1f;
 		}
 		else {
 			if (player->center.y <= -80) {
-				move_plane(player, 4, { 80, -100, player->center.z }, 1, 0, 0);	return;
+				move_plane(player, 4, { -player->center.y, -player->center.x, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y -= 0.1f;
@@ -370,94 +431,93 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 	else if (player->plane == 3) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				move_plane(player, 1, { -100, 80, player->center.z }, 3, 0, 0);	return;
+				move_plane(player, 1, { -player->center.x, -player->center.y, player->center.z }, 3, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
 		}
 		if (dir == 1) {
-			if (player->center.z <= -80) {
-				move_plane(player, 5, { player->center.x, 80, -100 }, 0, 1, 0);	return;
+			if (player->center.y >= 80) {
+				move_plane(player, 5, { -player->center.x, player->center.y, player->center.z }, 2, 0, 0);	return;
 			}
 			else { player->movplane = false; }
-			player->center.z -= 0.1f;
+			player->center.y += 0.1f;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
-				move_plane(player, 2, { 100, 80, player->center.z }, 1, 0, 0);	return;
+				move_plane(player, 2, { -player->center.x, -player->center.y, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x += 0.1f;
 		}
 		if (dir == 3) {
-			if (player->center.z >= 80) {
-				move_plane(player, 0, { player->center.x, 80, 100 }, 0, 0, 0);	return;
+			if (player->center.y <= -80) {
+				move_plane(player, 0, { player->center.x, -player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
-			player->center.z += 0.1f;
+			player->center.y -= 0.1f;
 		}
 	}
 	else if (player->plane == 4) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				move_plane(player, 1, { -100, -80, player->center.z }, 1, 0, 0);	return;
+				move_plane(player, 1, { player->center.y, player->center.x, player->center.z }, 1, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.x -= 0.1f;
 		}
 		if (dir == 1) {
-			if (player->center.z >= 80) {
-				move_plane(player, 0, { player->center.x, -80, 100 }, 0, 0, 0);	return;
-			}
-			else { player->movplane = false; }
-			player->center.z += 0.1f;
-		}
-		if (dir == 2) {
-			if (player->center.x >= 80) {
-				move_plane(player, 2, { 100, -80, player->center.z }, 3, 0, 0);	return;
-			}
-			else { player->movplane = false; }
-			player->center.x += 0.1f;
-		}
-		if (dir == 3) {
-			if (player->center.z <= -80) {
-				move_plane(player, 5, { player->center.x, -80, -100 }, 2, 0, 0);	return;
-			}
-			else { player->movplane = false; }
-			player->center.z -= 0.1f;
-		}
-	}	
-	else if (player->plane == 5) {
-		if (dir == 0) {
-			if (player->center.x >= 80) {
-				move_plane(player, 2, { 100, player->center.y, -80 }, 0, 0, 1);	return;
-			}
-			else { player->movplane = false; }
-			player->center.x += 0.1f;
-		}
-		if (dir == 1) {
-			if (player->center.y <= -80) {
-				move_plane(player, 4, { player->center.x, -100, -80 }, 0, 1, 0);	return;
-			}
-			else { player->movplane = false; }
-			player->center.y -= 0.1f;
-		}
-		if (dir == 2) {
-			if (player->center.x <= -80) {
-				move_plane(player, 1, { -100, player->center.y, -80 }, 0, 0, 1);	return;
-			}
-			else { player->movplane = false; }
-			player->center.x -= 0.1f;
-		}
-		if (dir == 3) {
 			if (player->center.y >= 80) {
-				move_plane(player, 3, { player->center.x, 100, -80 }, 0, 1, 0);	return;
+				move_plane(player, 0, { player->center.x, -player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			player->center.y += 0.1f;
 		}
+		if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 2, { -player->center.y, -player->center.x, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.y <= -80) {
+				move_plane(player, 5, { -player->center.x, player->center.y, player->center.z }, 2, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
 	}
-	
+	else if (player->plane == 5) {
+		if (dir == 0) {
+			if (player->center.x <= -80) {
+				move_plane(player, 2, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x -= 0.1f;
+		}
+		if (dir == 1) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, { -player->center.x, player->center.y, player->center.z }, 2, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
+		}
+		if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 1, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { -player->center.x, player->center.y, player->center.z }, 2, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
+	}
 }
 
 inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> walls, std::vector<tank> tanks) {
@@ -577,3 +637,288 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 
 #endif
 
+
+//PLEASE DON't DELETE THIS FUNCTION!!!!
+/*
+inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
+	int dir = player->dir;
+	player->is_moving = true;
+	if (player->plane == 0) {
+		if (dir == 0) {
+			if (player->center.x <= -80) {
+				move_plane(player, 1, {-100, player->center.y, 80}, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
+					if (player->center.y - w.center.y > 19.0f) {
+						player->center.y = ceil(player->center.y);
+					}
+					else if (w.center.y - player->center.y > 19.0f) {
+						player->center.y = floor(player->center.y);
+					}
+					else {
+						player->is_moving = false;
+						return;
+					}
+				}
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
+			}
+			player->center.x -= 0.1f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, {player->center.x, 100, 80 }, 0, 0, 0);
+				return;
+			}
+			else { player->movplane = false; }
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 19.9f) {
+					if (player->center.x - w.center.x > 19.0f) {
+						player->center.x = ceil(player->center.x);
+					}
+					else if (w.center.x - player->center.x > 19.0f) {
+						player->center.x = floor(player->center.x);
+					}
+					else {
+						player->is_moving = false;
+						return;
+					}
+				}
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
+			}
+			player->center.y += 0.1f;
+		}
+		else if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 2, { 100, player->center.y, 80 }, 0, 0, 0);
+				return;
+			}
+			else { player->movplane = false; }
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
+					if (player->center.y - w.center.y > 19.0f) {
+						player->center.y = ceil(player->center.y);
+					}
+					else if (w.center.y - player->center.y > 19.0f) {
+						player->center.y = floor(player->center.y);
+					}
+					else {
+						player->is_moving = false;
+						return;
+					}
+				}
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
+			}
+			player->center.x += 0.1f;
+		}
+		else {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { player->center.x, -100, 80 }, 0, 0, 0);
+				return;
+			}
+			else { player->movplane = false; }
+			for (auto& w : walls) {
+				if (player->plane != w.plane) continue;
+				if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) {
+					if (player->center.x - w.center.x > 19.0f) {
+						player->center.x = ceil(player->center.x);
+					}
+					else if (w.center.x - player->center.x > 19.0f) {
+						player->center.x = floor(player->center.x);
+					}
+					else {
+						player->is_moving = false;
+						return;
+					}
+				}
+			}
+			for (auto& t : tanks) {
+				if (!t.isenemy) continue;
+				if (player->plane != t.plane) continue;
+				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) {
+					player->is_moving = false;
+					return;
+				}
+			}
+			player->center.y -= 0.1f;
+		}
+	}
+
+
+	else if (player->plane == 1) {
+		if (dir == 0) {
+			if (player->center.z <= -80) {
+				move_plane(player, 5, { -80, player->center.y, -100 }, 0, 0, 1);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z -= 0.1f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, { -80, 100, player->center.z}, 1, 0, 0);		return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
+		}
+		else if (dir == 2) {
+			if (player->center.z >= 80) {
+				move_plane(player, 0, { -80, player->center.y, 100}, 0, 0, 0);		return;
+			}
+			else { player->movplane = false; }
+			player->center.z += 0.1f;
+		}
+		else {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { -80, -100, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
+	}
+	else if (player->plane == 2) {
+		if (dir == 0) {
+			if (player->center.z >= 80) {
+				move_plane(player, 4, { 80, player->center.y, 100 }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z += 0.1f;
+		}
+		else if (dir == 1) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, { 80, 100, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
+		}
+		else if (dir == 2) {
+			if (player->center.z <= -80) {
+				move_plane(player, 5, { 80, player->center.y, -100 }, 0, 0, 1);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z -= 0.1f;
+		}
+		else {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { 80, -100, player->center.z }, 1, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
+	}
+	else if (player->plane == 3) {
+		if (dir == 0) {
+			if (player->center.x <= -80) {
+				move_plane(player, 1, { -100, 80, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x -= 0.1f;
+		}
+		if (dir == 1) {
+			if (player->center.z <= -80) {
+				move_plane(player, 5, { player->center.x, 80, -100 }, 0, 1, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z -= 0.1f;
+		}
+		if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 2, { 100, 80, player->center.z }, 1, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.z >= 80) {
+				move_plane(player, 0, { player->center.x, 80, 100 }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z += 0.1f;
+		}
+	}
+	else if (player->plane == 4) {
+		if (dir == 0) {
+			if (player->center.x <= -80) {
+				move_plane(player, 1, { -100, -80, player->center.z }, 1, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x -= 0.1f;
+		}
+		if (dir == 1) {
+			if (player->center.z >= 80) {
+				move_plane(player, 0, { player->center.x, -80, 100 }, 0, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z += 0.1f;
+		}
+		if (dir == 2) {
+			if (player->center.x >= 80) {
+				move_plane(player, 2, { 100, -80, player->center.z }, 3, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.z <= -80) {
+				move_plane(player, 5, { player->center.x, -80, -100 }, 2, 0, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.z -= 0.1f;
+		}
+	}
+	else if (player->plane == 5) {
+		if (dir == 0) {
+			if (player->center.x >= 80) {
+				move_plane(player, 2, { 100, player->center.y, -80 }, 0, 0, 1);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x += 0.1f;
+		}
+		if (dir == 1) {
+			if (player->center.y <= -80) {
+				move_plane(player, 4, { player->center.x, -100, -80 }, 0, 1, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y -= 0.1f;
+		}
+		if (dir == 2) {
+			if (player->center.x <= -80) {
+				move_plane(player, 1, { -100, player->center.y, -80 }, 0, 0, 1);	return;
+			}
+			else { player->movplane = false; }
+			player->center.x -= 0.1f;
+		}
+		if (dir == 3) {
+			if (player->center.y >= 80) {
+				move_plane(player, 3, { player->center.x, 100, -80 }, 0, 1, 0);	return;
+			}
+			else { player->movplane = false; }
+			player->center.y += 0.1f;
+		}
+	}
+}
+*/
