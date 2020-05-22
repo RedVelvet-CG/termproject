@@ -28,7 +28,6 @@ struct tank {
 	float	bulletstamp = 0.0f;
 	int		diroffset = 0;
 	int		dirs[4] = { 0,1,2,3 };
-	bool	is_moving = true;
 
 	inline void update();
 };
@@ -186,7 +185,6 @@ inline void player_activate(tank* player, int dir, bool activate){
 	}
 	else {
 		player->movflag = false;
-		player->is_moving = false;
 	}
 }
 
@@ -208,7 +206,6 @@ inline void move_plane(tank* player, int plane, vec3 movvec, int offset, int lrc
 
 inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
 	int dir = player->dir;
-	player->is_moving = true;
 	if (player->plane == 0) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
@@ -224,19 +221,13 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.y - player->center.y > 19.0f) {
 						player->center.y = floor(player->center.y);
 					}
-					else {
-						player->is_moving = false;
-						return;
-					}
+					else return;
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
-					player->is_moving = false;
-					return;
-				}
+				if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) return;
 			}
 			player->center.x -= 0.1f;
 		}
@@ -255,19 +246,13 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.x - player->center.x > 19.0f) {
 						player->center.x = floor(player->center.x);
 					}
-					else {
-						player->is_moving = false;
-						return;
-					}
+					else return;
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) {
-					player->is_moving = false;
-					return;
-				}
+				if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) return;
 			}
 			player->center.y += 0.1f;
 		}
@@ -286,19 +271,13 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.y - player->center.y > 19.0f) {
 						player->center.y = floor(player->center.y);
 					}
-					else {
-						player->is_moving = false;
-						return;
-					}
+					else return;
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
-					player->is_moving = false;
-					return;
-				}
+				if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) return;
 			}
 			player->center.x += 0.1f;
 		}
@@ -317,19 +296,13 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 					else if (w.center.x - player->center.x > 19.0f) {
 						player->center.x = floor(player->center.x);
 					}
-					else {
-						player->is_moving = false;
-						return;
-					}
+					else return;
 				}
 			}
 			for (auto& t : tanks) {
 				if (!t.isenemy) continue;
 				if (player->plane != t.plane) continue;
-				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) {
-					player->is_moving = false;
-					return;
-				}
+				if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) return;
 			}
 			player->center.y -= 0.1f;
 		}
