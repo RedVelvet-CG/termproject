@@ -71,8 +71,8 @@ inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
 	tank mytank = { vec3(-40.0f, 0.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false};
 	spheres.emplace_back(mytank);
-	//front enemy
-	/*
+
+	//front enemy	
 	tank enemy1, enemy2, enemy3, enemy4;
 	enemy1 = { vec3(-60.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,1 };
 	enemy2 = { vec3(-60.0f, -80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,2 };
@@ -82,57 +82,57 @@ inline std::vector<tank> create_tank() {
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//left enemy
-	enemy1 = { vec3(-100.0f, 40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
-	enemy2 = { vec3(-100.0f, -40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
-	enemy3 = { vec3(-100.0f, 40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,7 };
-	enemy4 = { vec3(-100.0f, -40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,8 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,7 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,8 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//right enemy
-	enemy1 = { vec3(100.0f, 40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,9 };
-	enemy2 = { vec3(100.0f, -40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,10 };
-	enemy3 = { vec3(100.0f, 40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,11 };
-	enemy4 = { vec3(100.0f, -40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,12 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,9 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,10 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,11 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2, 12 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
 
 	//top enemy
-	enemy1 = { vec3(-40.0f, 100.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,13 };
-	enemy2 = { vec3(-40.0f, 100.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,14 };
-	enemy3 = { vec3(40.0f, 100.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,15 };
-	enemy4 = { vec3(40.0f, 100.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,16 };
+	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,13 };
+	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,14 };
+	enemy3 = { vec3(40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,15 };
+	enemy4 = { vec3(40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 3,16 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-
+	
 	//bottom enemy
-	enemy1 = { vec3(-20.0f, -100.0f, -20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,13 };
-	enemy2 = { vec3(-20.0f, -100.0f, 20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,14 };
-	enemy3 = { vec3(20.0f, -100.0f, -20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,15 };
-	enemy4 = { vec3(20.0f, -100.0f, 20.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,16 };
+	enemy1 = { vec3(-20.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,17 };
+	enemy2 = { vec3(-20.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,18 };
+	enemy3 = { vec3(20.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,19 };
+	enemy4 = { vec3(20.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,20 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
 
 	//back enemy
-	enemy1 = { vec3(-20.0f, 0.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,17 };
-	enemy2 = { vec3(20.0f, 0.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,18 };
-	enemy3 = { vec3(0.0f, -20.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,19 };
-	enemy4 = { vec3(0.0f, 20.0f, -100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,20 };
+	enemy1 = { vec3(-20.0f, 0.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,21 };
+	enemy2 = { vec3(0.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,22 };
+	enemy3 = { vec3(0.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,23 };
+	enemy4 = { vec3(20.0f, 0.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 5,24 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-	*/
+
 	return spheres;
 }
 
