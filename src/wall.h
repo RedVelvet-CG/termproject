@@ -11,7 +11,9 @@ struct wall {
 	bool broken = false;
 	bool is_base = false;
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
+	int		dir = 0; //0: left	1: up	2: right	3: back
 	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {-PI / 2, 0, 0}, {PI / 2, 0, 0}, {0, PI, 0} };
+	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2 };
 	float	theta = 0.0f; //rotation angle
 	float	radius = 10.0f;		// radius
 	vec4	color;				// RGBA color in [0,1]
@@ -126,321 +128,314 @@ inline void create_front_wall(std::vector<wall>& walls, bool life, int plane = 0
 
 inline void create_left_wall(std::vector<wall>& walls, bool life, int plane = 1) {
 	wall w;
-	//left is (-100, y, -x)
-	w = { vec3(-100.0f, 60.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 40.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 20.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -40.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -60.0f, -60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-100.0f, 20.0f, -40.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, -40.0f),false,false,false, plane };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-100.0f, 60.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 40.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, 20.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, -40.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, -60.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-100.0f, 60.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 40.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 20.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -40.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -60.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-100.0f, 20.0f, 40.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, 40.0f),false,false,false, plane };
+	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-100.0f, 60.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 40.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, 20.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -20.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -40.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-100.0f, -60.0f, 60.0f),true,false,false, plane };
+	w = { vec3(20.0f, -60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(40.0f, 20.0f, 100.0f),false,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -20.0f, 100.0f),false,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 }
 
 inline void create_right_wall(std::vector<wall>& walls, bool life, int plane = 2) {
 	wall w;
-	//right is (100, y, x)
-	w = { vec3(100.0f, 0.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 0.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, -20.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f,-40.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, -60.0f, 60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(100.0f, 20.0f, 40.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(100.0f, -60.0f, 40.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(100.0f, 40.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, 20.0f, 20.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(100.0f, -60.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(100.0f, 60.0f, 0.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, 00.0f, 0.0f),false,false,false, plane };
+	w = { vec3(-20.0f, 20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, -60.0f, 0.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(100.0f, 60.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(100.0f, -20.0f, -20.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(100.0f, -40.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(100.0f, 60.0f, -40.0f),true,false,false, plane };
+	w = { vec3(0.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, -20.0f, -40.0f),true,false,false, plane };
+	w = { vec3(0.0f, 0.0f, 100.0f),false,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(0.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(100.0f, 0.0f, -60.0f),true,false,false, plane };
+	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, 20.0f, -60.0f),true,false,false, plane };
+	w = { vec3(20.0f, -20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, 40.0f, -60.0f),true,false,false, plane };
+	w = { vec3(20.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(100.0f, 60.0f, -60.0f),true,false,false, plane };
+
+	w = { vec3(40.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 0.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 }
 
 inline void create_top_wall(std::vector<wall>& walls, bool life, int plane = 3) {
 	wall w;
-	//top is (x, 100, y)
-	w = { vec3(-60.0f, 100.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 100.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 100.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 100.0f, 40.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 100.0f, 60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-40.0f, 100.0f, -60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, 100.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, 100.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, 100.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-20.0f, 100.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 100.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 100.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 100.0f, 60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(0.0f, 100.0f, -60.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, 100.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, 100.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, 100.0f, 60.0f),false,false,false, plane };
+	w = { vec3(-40.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(20.0f, 100.0f, -60.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 100.0f, -20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 100.0f, 20.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 100.0f, 60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(40.0f, 100.0f, -60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, 100.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, 100.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, 100.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(60.0f, 100.0f, -60.0f),true,false,false, plane };
+	w = { vec3(0.0f, 60.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 100.0f, -20.0f),true,false,false, plane };
+	w = { vec3(0.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 100.0f, 0.0f),false,false,false, plane };
+	w = { vec3(0.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 100.0f, 20.0f),true,false,false, plane };
+	w = { vec3(0.0f, -60.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 100.0f, 60.0f),true,false,false, plane };
+
+	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(20.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(20.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(20.0f, -60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(40.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 }
 
 inline void create_bottom_wall(std::vector<wall>& walls, bool life, int plane = 4) {
 	wall w;
-	//bottom is (x, -100, y)
-	w = { vec3(-60.0f, -100.0f, 60.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -100.0f, -60.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-40.0f, -100.0f, 40.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -100.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -100.0f, 0.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -100.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-20.0f, -100.0f, 40.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-
-	w = { vec3(0.0f, -100.0f, 40.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 0.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(0.0f, -100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-
-	w = { vec3(20.0f, -100.0f, 40.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(20.0f, -100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(40.0f, -100.0f, 40.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(40.0f, -100.0f, 20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, -100.0f, 0.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, -100.0f, -20.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, -100.0f, -40.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(60.0f, -100.0f, 60.0f),true,false,false, plane };
+	w = { vec3(0.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -100.0f, -60.0f),true,false,false, plane };
+	w = { vec3(0.0f, -40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(20.0f, 40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(20.0f, -40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(40.0f, 40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, 0.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 }
 
 inline void create_back_wall(std::vector<wall>& walls, bool life, int plane = 5) {
 	wall w;
-	//back is (-x, y, -100)
-	w = { vec3(60.0f, 60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 40.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 20.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, 0.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, 0.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -20.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -20.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -40.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -40.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(60.0f, -60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(40.0f, 60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, 40.0f, -100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, -40.0f, -100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(40.0f, -60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(20.0f, 60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-40.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, 20.0f, -100.0f),false,false,false, plane };
+	w = { vec3(-40.0f, 40.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, -20.0f, -100.0f),false,false,false, plane };
+	w = { vec3(-40.0f, -40.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(20.0f, -60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(0.0f, 60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, 0.0f, -100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(0.0f, -60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-40.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-20.0f, 60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, 20.0f, -100.0f),false,false,false, plane };
+	w = { vec3(-20.0f, 20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -20.0f, -100.0f),false,false,false, plane };
+	w = { vec3(-20.0f, -20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-20.0f, -60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	w = { vec3(-40.0f, 60.0f, -100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, 40.0f, -100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -40.0f, -100.0f),false,false,false, plane };
-	walls.emplace_back(w);
-	w = { vec3(-40.0f, -60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(-20.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 
-	w = { vec3(-60.0f, 60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(0.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 40.0f, -100.0f),true,false,false, plane };
+	w = { vec3(0.0f, 0.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 20.0f, -100.0f),true,false,false, plane };
+	w = { vec3(0.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, 0.0f, -100.0f),true,false,false, plane };
+
+	w = { vec3(20.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -20.0f, -100.0f),true,false,false, plane };
+	w = { vec3(20.0f, 20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -40.0f, -100.0f),true,false,false, plane };
+	w = { vec3(20.0f, -20.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
-	w = { vec3(-60.0f, -60.0f, -100.0f),true,false,false, plane };
+	w = { vec3(20.0f, -60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(40.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, 40.0f, 100.0f),false,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -40.0f, 100.0f),false,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(40.0f, -60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+
+	w = { vec3(60.0f, 60.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, 0.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -20.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -40.0f, 100.0f),true,false,false, plane };
+	walls.emplace_back(w);
+	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 }
 
@@ -448,7 +443,6 @@ inline std::vector<wall> create_wall() {
 	std::vector<wall> walls;
 	//front
 	create_front_wall(walls, true);
-	/*
 	//left
 	create_left_wall(walls, false);
 	//right
@@ -459,7 +453,6 @@ inline std::vector<wall> create_wall() {
 	create_bottom_wall(walls, false);
 	//back
 	create_back_wall(walls, false);
-	*/
 	return walls;
 }
 
@@ -495,19 +488,13 @@ inline void make_wall_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void wall::update() {
-	/*
-	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //x axis rotate
+	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) * //y axis rotate
-		mat4::translate(center.x, center.y, center.z) *
-		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) * //z axis rotate
-		mat4::scale(radius, radius, radius);
-	*/
-	model_matrix = mat4::rotate(vec3(1, 0, 0), 0) *  //x axis rotate
+		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) *
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0), 0) * //y axis rotate
+		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) *
 		mat4::translate(center.x, center.y, center.z) *
-		mat4::rotate(vec3(0, 0, 1), 0) * //z axis rotate
+		mat4::rotate(vec3(0, 0, 1), dirvec[dir]) *
 		mat4::scale(radius, radius, radius);
 }
 
