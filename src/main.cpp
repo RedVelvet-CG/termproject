@@ -216,7 +216,7 @@ void render() {
 			}
 			del_tank_checker++;
 		}
-		if (b.center.x >= 90 || b.center.x <= -90 || b.center.y >= 90 || b.center.y <= -90) {
+		if (abs(b.center.x)+abs(b.center.y)+abs(b.center.z)>=280) {
 			bullet_break_checker = true;
 		}
 
