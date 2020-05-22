@@ -80,6 +80,7 @@ std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
 	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet };
+	
 	if (t.plane == 0) {
 		t.center.z += 0.25f;
 		if (t.dir == 0) {new_bullet.movvec.x = -0.5;}
@@ -122,6 +123,7 @@ std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 		else if (t.dir == 2) { new_bullet.movvec.x = -0.5; }
 		else { new_bullet.movvec.y = +0.5; }
 	}
+	
 	b.emplace_back(new_bullet);
 	return b;
 }
