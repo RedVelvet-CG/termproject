@@ -157,7 +157,7 @@ void render() {
 		bool bullet_break_checker = false;
 		int del_wall_checker = 0;
 		for (auto& w : walls){
-			if (abs(w.center.x - b.center.x) <= 10.0f && abs(w.center.y - b.center.y) <= 10.0f && abs(w.center.z - b.center.z)<=10.f){
+			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) + abs(w.center.z - b.center.z)<=10.f){
 				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if(w.breakable) del_walls.push_back(del_wall_checker);
@@ -171,7 +171,7 @@ void render() {
 				del_tank_checker++;
 				continue;
 			}
-			if (abs(t.center.x - b.center.x) <= 10.0f && abs(t.center.y - b.center.y) <= 10.0f)
+			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) + abs(t.center.z-b.center.z)<= 10.0f)
 			{
 				bullet_break_checker = true;
 				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))

@@ -67,14 +67,34 @@ void create_tank_vertices(std::vector<vertex>& v) {
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
 	tank mytank = { vec3(-40.0f, -80.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false};
-	tank enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,1 };
-	tank enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,2 };
-	tank enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,3 };
 	spheres.emplace_back(mytank);
+	//front enemy
+	tank enemy1, enemy2, enemy3, enemy4;
+	enemy1 = { vec3(-80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,1 };
+	enemy2 = { vec3(0.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,2 };
+	enemy3 = { vec3(80.0f, 80.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 0,3 };
 	spheres.emplace_back(enemy1);
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
-	//spheres.emplace_back(tank2);
+
+	//left enemy
+
+	enemy1 = { vec3(-100.0f, 40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,4 };
+	enemy2 = { vec3(-100.0f, -40.0f, -40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
+	enemy3 = { vec3(-100.0f, 40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
+	enemy4 = { vec3(-100.0f, -40.0f, 40.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,7 };
+	spheres.emplace_back(enemy1);
+	spheres.emplace_back(enemy2);
+	spheres.emplace_back(enemy3);
+	spheres.emplace_back(enemy4);
+
+	//right enemy
+
+	//top enemy
+
+	//bottom enemy
+
+	//back enemy
 	return spheres;
 }
 
