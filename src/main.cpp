@@ -9,6 +9,8 @@
 #include "bullet.h"
 #include <cstdlib>
 #include <ctime>
+#include "irrKlang\irrKlang.h"
+#pragma comment(lib, "irrKlang.lib")
 
 // global constants
 static const char* window_name = "Tanks!";
@@ -17,6 +19,9 @@ static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
 static const char* iron_path = "../bin/images/iron.jpg";
 static const char* skku_path = "../bin/images/skku.jpg";
+static const char* fire_sound_path = "../bin/sounds/tank_fire.wav";
+static const char* base_attack_sound_path = "../bin/sounds/Base_under_attack.mp3";
+static const char* tank_moving_sound_path = "../bin/sounds/tank_moving.wav";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -40,6 +45,12 @@ GLuint	vertex_array = 0;
 GLuint	brick = 0;
 GLuint	iron = 0;
 GLuint	skku = 0;
+
+//*******************************************************************
+// irrKlang objects
+irrklang::ISoundEngine* engine;
+irrklang::ISoundSource* fire_sound = nullptr;
+irrklang::ISoundSource* tank_moving_sound = nullptr;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -343,21 +354,27 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		}
 		else if (key == GLFW_KEY_LEFT) {
 			player_activate(player, 0, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) engine->play2D(tank_moving_sound, true);
 		}
 		else if (key == GLFW_KEY_UP) {
 			player_activate(player, 1, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) engine->play2D(tank_moving_sound, true);
 		}
 		else if (key == GLFW_KEY_RIGHT) {
 			player_activate(player, 2, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) engine->play2D(tank_moving_sound, true);
 		}
 		else if (key == GLFW_KEY_DOWN) {
 			player_activate(player, 3, true);
+			if (!(engine->isCurrentlyPlaying(tank_moving_sound))) engine->play2D(tank_moving_sound, true);
 		}
 		else if (key == GLFW_KEY_S) {
 			player_activate(player, player->dir, false);
+			if (engine->isCurrentlyPlaying(tank_moving_sound)) engine->stopAllSounds();
 		}
 		else if (key == GLFW_KEY_A) {
 			bullets = create_bullet(bullets, tanks[0]);
+			engine->play2D(fire_sound, false);
 		}
 		else if (key == GLFW_KEY_W)
 		{
@@ -436,11 +453,22 @@ bool user_init() {
 	
 	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
 	//update_vertex_buffer(unit_tank_vertices, NUM_TESS);
+
+	engine = irrklang::createIrrKlangDevice();
+	if (!engine) return false;
 	
+	fire_sound = engine->addSoundSourceFromFile(fire_sound_path);
+	tank_moving_sound = engine->addSoundSourceFromFile(tank_moving_sound_path);
+
+	fire_sound->setDefaultVolume(0.5f);
+	tank_moving_sound->setDefaultVolume(0.5f);
+
 	return true;
 }
 
-void user_finalize() {}
+void user_finalize() {
+	engine->drop();
+}
 
 int main(int argc, char* argv[]) {
 	
