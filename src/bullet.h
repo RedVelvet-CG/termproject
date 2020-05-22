@@ -11,6 +11,7 @@ struct bullet {
 	bool	is_mine = false;
 	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
 	int		dir = 0; //0: left	1: up	2: right	3: back
+	int		bullet_id = 0;
 	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {-PI / 2, 0, 0}, {PI / 2, 0, 0}, {0, PI, 0} };
 	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2 };
 	float	theta = 0.0f;
@@ -19,6 +20,7 @@ struct bullet {
 	int		creation_val = 3*14;
 	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
 	vec3	movvec[4] = { {-0.5, 0, 0}, {0, 0.5, 0}, {0.5, 0, 0}, {0, -0.5, 0} };
+
 
 	void update();
 };
@@ -84,7 +86,7 @@ inline void bullet::update() {
 std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
-	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet, t.plane, t.dir };
+	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet, t.plane, t.dir, t.tank_id };
 	b.emplace_back(new_bullet);
 	return b;
 }
