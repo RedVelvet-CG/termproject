@@ -9,12 +9,16 @@
 struct bullet {
 	vec3	center = vec3(0);
 	bool	is_mine = false;
-	vec3	movvec = { 0,0,0 };
+	int		plane = 0; //0: front	1: left		2: right	3: top	4: bottom	5:back
+	int		dir = 0; //0: left	1: up	2: right	3: back
+	vec3	planevec[6] = { {0,0,0}, {0, -PI / 2, 0}, {0, PI / 2, 0}, {-PI / 2, 0, 0}, {PI / 2, 0, 0}, {0, PI, 0} };
+	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2 };
 	float	theta = 0.0f;
 	float	radius = 10.0f;
 	mat4	model_matrix;
 	int		creation_val = 3*14;
 	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
+	vec3	movvec[4] = { {-0.5, 0, 0}, {0, 0.5, 0}, {0.5, 0, 0}, {0, -0.5, 0} };
 
 	void update();
 };
@@ -66,64 +70,21 @@ void make_bullet_indices(std::vector<uint>& v, uint N) {
 }
 
 inline void bullet::update() {
-	center += movvec;
-
-	model_matrix = mat4::rotate(vec3(0, 1, 0), 0) *  //rotation around sun
+	center += movvec[dir];
+	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 0, 0), 0) * //self-rotation
+		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) *
+		mat4::translate(0, 0, 0) *
+		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) *
 		mat4::translate(center.x, center.y, center.z) *
-		mat4::rotate(vec3(0, 0, 1), 0) *
+		mat4::rotate(vec3(0, 0, 1), dirvec[dir]) *
 		mat4::scale(radius, radius, radius);
 }
 
 std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
-	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet };
-	
-	if (t.plane == 0) {
-		t.center.z += 0.25f;
-		if (t.dir == 0) {new_bullet.movvec.x = -0.5;}
-		else if (t.dir == 1) {new_bullet.movvec.y = +0.5;}
-		else if (t.dir == 2) {new_bullet.movvec.x = +0.5;}
-		else {new_bullet.movvec.y = -0.5;}
-	}
-	else if (t.plane == 1) {
-		t.center.x -= 0.25;
-		if (t.dir == 0) { new_bullet.movvec.z = -0.5; }
-		else if (t.dir == 1) { new_bullet.movvec.y = +0.5; }
-		else if (t.dir == 2) { new_bullet.movvec.z = +0.5; }
-		else { new_bullet.movvec.y = -0.5; }
-	}
-	else if (t.plane == 2) {
-		t.center.x += 0.25;
-		if (t.dir == 0) { new_bullet.movvec.z = +0.5; }
-		else if (t.dir == 1) { new_bullet.movvec.y = +0.5; }
-		else if (t.dir == 2) { new_bullet.movvec.z = -0.5; }
-		else { new_bullet.movvec.y = -0.5; }
-	}
-	else if (t.plane == 3) {
-		t.center.y += 0.25;
-		if (t.dir == 0) { new_bullet.movvec.x = -0.5; }
-		else if (t.dir == 1) { new_bullet.movvec.z = -0.5; }
-		else if (t.dir == 2) { new_bullet.movvec.x = +0.5; }
-		else { new_bullet.movvec.z = +0.5; }
-	}
-	else if (t.plane == 4) {
-		t.center.x -= 0.25;
-		if (t.dir == 0) { new_bullet.movvec.x = -0.5; }
-		else if (t.dir == 1) { new_bullet.movvec.z = +0.5; }
-		else if (t.dir == 2) { new_bullet.movvec.x = +0.5; }
-		else { new_bullet.movvec.z = -0.5; }
-	}
-	else {
-		t.center.z -= 0.25;
-		if (t.dir == 0) { new_bullet.movvec.x = +0.5; }
-		else if (t.dir == 1) { new_bullet.movvec.y = -0.5; }
-		else if (t.dir == 2) { new_bullet.movvec.x = -0.5; }
-		else { new_bullet.movvec.y = +0.5; }
-	}
-	
+	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet, t.plane, t.dir };
 	b.emplace_back(new_bullet);
 	return b;
 }
