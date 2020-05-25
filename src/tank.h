@@ -28,7 +28,8 @@ struct tank {
 	float	bulletstamp = 0.0f;
 	int		diroffset = 0;
 	int		dirs[4] = { 0,1,2,3 };
-	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2};
+	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2 };
+	bool	is_moving = true;
 
 	inline void update();
 };
@@ -43,7 +44,7 @@ void create_tank_vertices(std::vector<vertex>& v) {
 	v.push_back({ vec3(-1.f,1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 	v.push_back({ vec3(-1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(1.f,-1.f,-1.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	
+
 	//head
 	v.push_back({ vec3(0.9f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(0.1f,0.4f,0.5f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
@@ -52,8 +53,8 @@ void create_tank_vertices(std::vector<vertex>& v) {
 	v.push_back({ vec3(0.9f,0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(0.1f,0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 	v.push_back({ vec3(0.1f,-0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
-	v.push_back({ vec3(0.9f,-0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });	
-	
+	v.push_back({ vec3(0.9f,-0.4f,0.f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
+
 	//barrel
 	v.push_back({ vec3(0.1f,0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(-1.0f,0.2f,0.4f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
@@ -63,12 +64,12 @@ void create_tank_vertices(std::vector<vertex>& v) {
 	v.push_back({ vec3(-1.0f,0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
 	v.push_back({ vec3(-1.0f,-0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(1, 0) });
 	v.push_back({ vec3(0.1f,-0.2f,0.1f), vec3(0.f,0.f,0.0f), vec2(0, 1) });
-	
+
 }
 
 inline std::vector<tank> create_tank() {
 	std::vector<tank> spheres;
-	tank mytank = { vec3(-40.0f, 0.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false};
+	tank mytank = { vec3(-40.0f, 0.0f, 100.0f), 1, vec4(0.637f,1.0f,0.611f,0.0f), 0, 0, false };
 	spheres.emplace_back(mytank);
 
 	//front enemy	
@@ -81,7 +82,7 @@ inline std::vector<tank> create_tank() {
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-	
+
 	//left enemy
 	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,5 };
 	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 1,6 };
@@ -91,7 +92,7 @@ inline std::vector<tank> create_tank() {
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-	
+
 	//right enemy
 	enemy1 = { vec3(-40.0f, 40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,9 };
 	enemy2 = { vec3(-40.0f, -40.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 2,10 };
@@ -111,7 +112,7 @@ inline std::vector<tank> create_tank() {
 	spheres.emplace_back(enemy2);
 	spheres.emplace_back(enemy3);
 	spheres.emplace_back(enemy4);
-	
+
 	//bottom enemy
 	enemy1 = { vec3(-20.0f, 20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,17 };
 	enemy2 = { vec3(-20.0f, -20.0f, 100.0f), 3, vec4(1.0f,0.0f,0.0f,0.0f), 4,18 };
@@ -163,17 +164,17 @@ inline void make_tank_part(std::vector<uint>& v, int offset) {
 
 inline void make_tank_indices(std::vector<uint>& v, uint N) {
 	//body
-	make_tank_part(v, N+0);
+	make_tank_part(v, N + 0);
 	//head
-	make_tank_part(v, N+8);
+	make_tank_part(v, N + 8);
 	//barrel
-	make_tank_part(v, N+16);
+	make_tank_part(v, N + 16);
 }
 
 inline void tank::update() {
 	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
-		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) * 
+		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) *
 		mat4::translate(0, 0, 0) *
 		mat4::rotate(vec3(0, 0, 1), planevec[plane].z) *
 		mat4::translate(center.x, center.y, center.z) *
@@ -181,13 +182,14 @@ inline void tank::update() {
 		mat4::scale(radius, radius, radius);
 }
 
-inline void player_activate(tank* player, int dir, bool activate){
+inline void player_activate(tank* player, int dir, bool activate) {
 	if (activate) {
 		player->dir = player->dirs[(dir + player->diroffset) % 4];
 		player->movflag = true;
 	}
 	else {
 		player->movflag = false;
+		player->is_moving = false;
 	}
 }
 
@@ -218,6 +220,7 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 				else {return true; }
 			}
 		}
+	}
 	else if (lrud == 'u') {
 		for (auto& w : walls) {
 			if (player->plane != w.plane) continue;
@@ -235,6 +238,28 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 				if (player->center.y - w.center.y > 18.0f) { player->center.y = ceil(player->center.y + 1); }
 				else if (w.center.y - player->center.y > 18.0f) { player->center.y = floor(player->center.y - 1); }
 				else { 	return true; }
+			}
+		}
+	}
+	else {
+		for (auto& w : walls) {
+			if (player->plane != w.plane) continue;
+			if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) {
+				if (player->center.x - w.center.x > 18.0f) { player->center.x = ceil(player->center.x + 1); }
+				else if (w.center.x - player->center.x > 18.0f) { player->center.x = floor(player->center.x - 1); }
+				else { player->is_moving = false;	return true; }
+			}
+		}
+	}
+	return false;
+}
+
+inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud) {
+	if (lrud == 'l') {
+		for (auto& t : tanks) {
+			if (!t.isenemy || player->plane != t.plane) continue;
+			if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
+				player->is_moving = false;	return true;
 			}
 		}
 	}
@@ -271,7 +296,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 	if (player->plane == 0) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
-				move_plane(player, 1, {-player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
+				move_plane(player, 1, { -player->center.x, player->center.y, player->center.z }, 0, 0, 0);	return;
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
@@ -505,7 +530,7 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 			if (enemy->center.y >= 80) { enemy->timestamp = 3.0f;  return; }
 			for (auto& w : walls) {
 				if (enemy->plane != w.plane) continue;
-				if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 19.9f) { 
+				if (w.center.y - enemy->center.y <= 20.0f && w.center.y > enemy->center.y && abs(enemy->center.x - w.center.x) < 19.9f) {
 					if (enemy->center.x - w.center.x > 19.0f) {
 						enemy->center.x = ceil(enemy->center.x);
 					}

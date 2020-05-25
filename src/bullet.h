@@ -16,10 +16,9 @@ struct bullet {
 	float	theta = 0.0f;
 	float	radius = 10.0f;
 	mat4	model_matrix;
-	int		creation_val = 3*14;
+	int		creation_val = 3 * 14;
 	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
 	vec3	movvec[4] = { {-0.5, 0, 0}, {0, 0.5, 0}, {0.5, 0, 0}, {0, -0.5, 0} };
-
 
 	void update();
 };
@@ -85,7 +84,7 @@ inline void bullet::update() {
 std::vector<bullet> create_bullet(std::vector<bullet> b, tank t) {
 	bool players_bullet = true;
 	if (t.isenemy) players_bullet = false;
-	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet, t.plane, t.dir, t.tank_id };
+	bullet new_bullet = { vec3(t.center.x,t.center.y,t.center.z),players_bullet, t.plane, t.dir };
 	b.emplace_back(new_bullet);
 	return b;
 }

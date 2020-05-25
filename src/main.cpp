@@ -87,7 +87,7 @@ std::vector<vertex> unit_combine_vertices; //to draw one set of vertices
 std::vector<vertex> unit_bullet_vertices;
 
 //game variables
-tank*	player = &tanks[0];
+tank* player = &tanks[0];
 int		movdir = 1;
 
 
@@ -110,7 +110,7 @@ void render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program); // notify GL that we use our own program
 	glBindVertexArray(vertex_array); // bind vertex array object	
-	
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, brick);
 	glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
@@ -129,7 +129,7 @@ void render() {
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
 		glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
 	}
-	
+
 	for (auto& t : tanks) {
 		t.update();
 		if (t.isenemy) {
@@ -146,7 +146,7 @@ void render() {
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
-		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1*sizeof(GLuint)));
+		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1 * sizeof(GLuint)));
 	}
 
 	for (auto& w : walls) {
@@ -165,19 +165,19 @@ void render() {
 		}
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
 		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
-		
+
 	}
 
 	int del_bullet_checker = 0;
 	for (auto& b : bullets) {
 		bool bullet_break_checker = false;
 		int del_wall_checker = 0;
-		for (auto& w : walls){
+		for (auto& w : walls) {
 			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) <= 10.0f && w.plane == b.plane) {
 				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
-				if(w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
-				else if (w.is_base) { 
+				if (w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
+				else if (w.is_base) {
 					if (base_health > 1) {
 						base_health--;
 						if (!(engine->isCurrentlyPlaying(base_attack_sound))) engine->play2D(base_attack_sound, false);
@@ -192,12 +192,12 @@ void render() {
 		}
 
 		int del_tank_checker = 0;
-		for (auto& t : tanks){
-			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine)){
+		for (auto& t : tanks) {
+			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine)) {
 				del_tank_checker++;
 				continue;
 			}
-			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane==b.plane)
+			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane == b.plane)
 			{
 				bullet_break_checker = true;
 				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
@@ -209,23 +209,23 @@ void render() {
 			del_tank_checker++;
 		}
 
-		if (abs(b.center.x)+abs(b.center.y)>=180) {
+		if (abs(b.center.x) + abs(b.center.y) >= 180) {
 			bullet_break_checker = true;
 		}
 
 		del_bullet_checker++;
-		if (bullet_break_checker){
+		if (bullet_break_checker) {
 			del_bullets.push_back(del_bullet_checker);
 		}
 		b.update();
 		glUniform1i(glGetUniformLocation(program, "mode"), 3);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE,b.model_matrix);
+		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, b.model_matrix);
 		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
-		
+
 	}
-	
+
 	int i = 1;
 	for (auto& db : del_bullets)
 	{
@@ -280,7 +280,7 @@ GLuint create_texture(const char* image_path, bool b_mipmap)
 	// load the image with vertical flipping
 	image* img = cg_load_image(image_path); if (!img) return -1;
 	int w = img->width, h = img->height;
-	
+
 	// create a src texture (lena texture)
 	GLuint texture; glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -315,13 +315,13 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	if (index_buffer)	glDeleteBuffers(1, &index_buffer);	index_buffer = 0;
 	if (vertices.empty()) { printf("[error] vertices is empty.\n"); return; } // check exceptions
 	std::vector<uint> indices;
-	
+
 	//make_field_indices(indices, N); // create buffers
 	make_field_indices(indices, 0);
 	make_tank_indices(indices, 8); // create buffers
 	make_wall_indices(indices, 32);
 	make_bullet_indices(indices, 56);
-								   
+
 	// generation of vertex buffer: use vertices as it is
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -452,13 +452,13 @@ bool user_init() {
 	combine_vertices(unit_wall_vertices);
 	combine_vertices(unit_bullet_vertices);
 	// create vertex buffer; called again when index buffering mode is toggled
-	
+
 	update_vertex_buffer(unit_combine_vertices, NUM_TESS);
 	//update_vertex_buffer(unit_tank_vertices, NUM_TESS);
 
 	engine = irrklang::createIrrKlangDevice();
 	if (!engine) return false;
-	
+
 	fire_sound = engine->addSoundSourceFromFile(fire_sound_path);
 	base_attack_sound = engine->addSoundSourceFromFile(base_attack_sound_path);
 	base_explode_sound = engine->addSoundSourceFromFile(base_explode_sound_path);
@@ -479,7 +479,7 @@ void user_finalize() {
 }
 
 int main(int argc, char* argv[]) {
-	
+
 	// create window and initialize OpenGL extensions
 	if (!(window = cg_create_window(window_name, window_size.x, window_size.y))) { glfwTerminate(); return 1; }
 	if (!cg_init_extensions(window)) { glfwTerminate(); return 1; }	// version and extensions
