@@ -55,6 +55,7 @@ irrklang::ISoundSource* base_explode_sound = nullptr;
 irrklang::ISoundSource* base_attack_sound = nullptr;
 irrklang::ISoundSource* bgm = nullptr;
 
+
 // global variables
 int		frame = 0;				// index of rendering frames
 float	t = 0.0f;
