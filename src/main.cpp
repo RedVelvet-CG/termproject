@@ -40,6 +40,7 @@ struct camera {
 // window objects
 GLFWwindow* window = nullptr;
 ivec2		window_size = ivec2(1280, 720);// cg_default_window_size(); // initial window size
+bool		fullscreen_flag = false;
 
 // OpenGL objects
 GLuint	program = 0;	// ID holder for GPU program
@@ -414,6 +415,13 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			b_wireframe = !b_wireframe;
 			glPolygonMode(GL_FRONT_AND_BACK, b_wireframe ? GL_LINE : GL_FILL);
 			printf("> using %s mode\n", b_wireframe ? "wireframe" : "solid");
+		}
+		else if (key == GLFW_KEY_F) {
+			int w_=1920, h_=1080;
+			glfwSetWindowPos(window, 0, 40);
+			//glfwGetWindowSize(window, &w_, &h_);
+			fullscreen_flag = !fullscreen_flag;
+			fullscreen_flag ? glfwSetWindowSize(window, w_, h_) : glfwSetWindowSize(window, 1280, 720);
 		}
 	}
 }
