@@ -63,11 +63,14 @@
     <ClInclude Include="cgut.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_truetype.h" />
     <ClInclude Include="tank.h" />
     <ClInclude Include="trackball.h" />
     <ClInclude Include="wall.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\shaders\text.frag" />
+    <None Include="..\bin\shaders\text.vert" />
     <None Include="..\bin\shaders\trackball.frag" />
     <None Include="..\bin\shaders\trackball.vert" />
   </ItemGroup>

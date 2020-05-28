@@ -12,6 +12,11 @@
 #include "irrKlang\irrKlang.h"
 #pragma comment(lib, "irrKlang.lib")
 
+//*******************************************************************
+// forward declarations for freetype text
+bool init_text();
+void render_text( std::string text, GLint x, GLint y, GLfloat scale, vec4 color, GLfloat dpi_scale=1.0f );
+
 // global constants
 static const char* window_name = "Tanks!";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
@@ -126,6 +131,39 @@ void render() {
 
 		// clear screen (with background color) and clear depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// render texts
+		render_text("Instructions", 950, 50, 0.8f, vec4(0.5f, 0.8f, 0.2f, 1.0f), 1.0f);
+		render_text("Move with arrow keys", 950, 75, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 's' to stop", 950, 100, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 'a' to attack", 950, 125, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 'r' to reset", 950, 150, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("mouse l: move view", 950, 175, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Ctrl -> mouse r: zoom", 950, 200, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Save base and survive", 950, 225, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+
+		render_text("Dashboard", 50, 50, 0.8f, vec4(0.5f, 0.8f, 0.2f, 1.0f), 1.0f);
+		std::string enemy_string = "Enemy left: ";
+		std::string enemy_value = std::to_string(player->health>0?tanks.size()-1:tanks.size());
+		for (int i = 0; i < (int)enemy_value.length(); i++) {
+			enemy_string.push_back(enemy_value[i]);
+		}
+		render_text(enemy_string, 50, 75, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+
+		std::string your_health_string = "Your health: ";
+		std::string your_health_value = std::to_string(player->health);
+		for (int i = 0; i < (int)your_health_value.length(); i++) {
+			your_health_string.push_back(your_health_value[i]);
+		}
+		render_text(your_health_string, 50, 100, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+
+		std::string base_health_string = "Base health: ";
+		std::string base_health_value = std::to_string(base_health);
+		for (int i = 0; i < (int)base_health_value.length(); i++) {
+			base_health_string.push_back(base_health_value[i]);
+		}
+		render_text(base_health_string, 50, 125, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+
 		glUseProgram(program); // notify GL that we use our own program
 		glBindVertexArray(vertex_array); // bind vertex array object	
 
@@ -272,21 +310,21 @@ void render() {
 		glfwSwapBuffers(window);
 	}
 	else if (game_mode == 0) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// bind program
-	glUseProgram(program);
+		// bind program
+		glUseProgram(program);
 
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, intro);
-	glUniform1i(glGetUniformLocation(program, "TEX3"), 3);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, intro);
+		glUniform1i(glGetUniformLocation(program, "TEX3"), 3);
 
-	glUniform1i(glGetUniformLocation(program, "intro"), 0);
-	glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
+		glUniform1i(glGetUniformLocation(program, "intro"), 0);
+		glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
 	
-	glBindVertexArray(vertex_array_intro);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glfwSwapBuffers(window);
+		glBindVertexArray(vertex_array_intro);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glfwSwapBuffers(window);
 	}
 }
 
@@ -493,10 +531,12 @@ bool user_init() {
 	print_help(); // log hotkeys
 	// init GL states
 	glClearColor(39 / 255.0f, 40 / 255.0f, 34 / 255.0f, 1.0f);	// set clear color
+	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);								// turn on backface culling
 	glEnable(GL_DEPTH_TEST);								// turn on depth tests
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//create_field_vertices(unit_field_vertices);
 	create_field_vertices(unit_field_vertices);
@@ -543,6 +583,8 @@ bool user_init() {
 	if (!vertex_array_intro) { printf("%s(): failed to create vertex aray\n", __func__); return false; }
 
 	intro = create_texture(intro_path, true);	if (intro == -1) return false;
+
+	if (!init_text()) return false;
 
 	return true;
 }
