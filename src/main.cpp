@@ -19,6 +19,7 @@ static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
 static const char* iron_path = "../bin/images/iron.jpg";
 static const char* skku_path = "../bin/images/skku.jpg";
+static const char* intro_path = "../bin/images/tank_intro.jpg";
 static const char* fire_sound_path = "../bin/sounds/tank_fire.wav";
 static const char* base_attack_sound_path = "../bin/sounds/Base_under_attack.mp3";
 static const char* base_explode_sound_path = "../bin/sounds/base_explode.wav";
@@ -39,13 +40,16 @@ struct camera {
 // window objects
 GLFWwindow* window = nullptr;
 ivec2		window_size = ivec2(1280, 720);// cg_default_window_size(); // initial window size
+bool		fullscreen_flag = false;
 
 // OpenGL objects
 GLuint	program = 0;	// ID holder for GPU program
 GLuint	vertex_array = 0;
+GLuint  vertex_array_intro = 0;
 GLuint	brick = 0;
 GLuint	iron = 0;
 GLuint	skku = 0;
+GLuint	intro = 0;
 
 //*******************************************************************
 // irrKlang objects
@@ -54,6 +58,7 @@ irrklang::ISoundSource* fire_sound = nullptr;
 irrklang::ISoundSource* base_explode_sound = nullptr;
 irrklang::ISoundSource* base_attack_sound = nullptr;
 irrklang::ISoundSource* bgm = nullptr;
+
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -68,6 +73,7 @@ int		zoomval = 50;
 int		panval = 30;
 bool	b_wireframe = false;
 int		base_health = 5;
+int		game_mode = 0;			// 0 = intro, 1 = main game, 2 = ending, 3 = game over
 std::vector<bullet> bullets;
 std::vector<int>	del_bullets;
 std::vector<int>	del_walls;
@@ -88,169 +94,200 @@ std::vector<vertex> unit_bullet_vertices;
 //game variables
 tank* player = &tanks[0];
 int		movdir = 1;
+float	gametick = 0.0f;
 
 
 void update() {
 	// update projection matrix
-	cam.aspect = window_size.x / float(window_size.y);
-	cam.projection_matrix = mat4::perspective(cam.fovy, cam.aspect, cam.dnear, cam.dfar);
-	// build the model matrix for oscillating scale
-	float t = float(glfwGetTime());
-	GLint uloc;
-	uloc = glGetUniformLocation(program, "view_matrix");			if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
-	uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
-	//uloc = glGetUniformLocation( program, "model_matrix" );			if(uloc>-1) glUniformMatrix4fv( uloc, 1, GL_TRUE, model_matrix );
+	float tmp_gametick = (float)glfwGetTime();
+	if (gametick + 0.005f > tmp_gametick) return;
+	gametick = tmp_gametick;
+	if (game_mode == 0) {
+		glUseProgram(program);
+	}
+	else if (game_mode == 1) {
+		cam.aspect = window_size.x / float(window_size.y);
+		cam.projection_matrix = mat4::perspective(cam.fovy, cam.aspect, cam.dnear, cam.dfar);
+		// build the model matrix for oscillating scale
+		float t = float(glfwGetTime());
+		GLint uloc;
+		uloc = glGetUniformLocation(program, "view_matrix");		if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
+		uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
+	}
+	
 }
 
 void render() {
-	srand((unsigned int)time(0));
 
-	// clear screen (with background color) and clear depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(program); // notify GL that we use our own program
-	glBindVertexArray(vertex_array); // bind vertex array object	
+	if (game_mode == 1) {
+		glUniform1i(glGetUniformLocation(program, "intro"), 1);
+		glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
+		srand((unsigned int)time(0));
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, brick);
-	glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
+		// clear screen (with background color) and clear depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(program); // notify GL that we use our own program
+		glBindVertexArray(vertex_array); // bind vertex array object	
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, iron);
-	glUniform1i(glGetUniformLocation(program, "TEX1"), 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, brick);
+		glUniform1i(glGetUniformLocation(program, "TEX0"), 0);
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, skku);
-	glUniform1i(glGetUniformLocation(program, "TEX2"), 2);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, iron);
+		glUniform1i(glGetUniformLocation(program, "TEX1"), 1);
 
-	for (auto& f : fields) {
-		f.update();
-		glUniform1i(glGetUniformLocation(program, "mode"), 4);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
-		glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
-	}
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, skku);
+		glUniform1i(glGetUniformLocation(program, "TEX2"), 2);
 
-	for (auto& t : tanks) {
-		t.update();
-		if (t.isenemy) {
-			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks);
-			float time_now = (float)glfwGetTime() - start_time;
-			if (time_now - t.bulletstamp > 2.0f) {
-				t.bulletstamp = time_now;
-				int shot_fire_check = rand() % 2;
-				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
-			}
-		}
-		else if (t.movflag) player_move(&t, walls, tanks);
-		glUniform1i(glGetUniformLocation(program, "mode"), 3);
-		GLint uloc;
-		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
-		glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1 * sizeof(GLuint)));
-	}
-
-	for (auto& w : walls) {
-		w.update();
-		if (!w.breakable) {
-			glUniform1i(glGetUniformLocation(program, "mode"), 1);
-		}
-		else if (w.broken) {
-
-		}
-		else if (w.is_base) {
-			glUniform1i(glGetUniformLocation(program, "mode"), 2);
-		}
-		else {
-			glUniform1i(glGetUniformLocation(program, "mode"), 0);
-		}
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
-		glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
-
-	}
-
-	int del_bullet_checker = 0;
-	for (auto& b : bullets) {
-		bool bullet_break_checker = false;
-		int del_wall_checker = 0;
-		for (auto& w : walls) {
-			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) <= 10.0f && w.plane == b.plane) {
-				if (player->plane != w.plane) continue;
-				bullet_break_checker = true;
-				if (w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
-				else if (w.is_base) {
-					if (base_health > 1) {
-						base_health--;
-						if (!(engine->isCurrentlyPlaying(base_attack_sound))) engine->play2D(base_attack_sound, false);
-					}
-					else {
-						del_walls.push_back(del_wall_checker);
-						engine->play2D(base_explode_sound, false);
-					}
-				}
-			}
-			del_wall_checker++;
+		for (auto& f : fields) {
+			f.update();
+			glUniform1i(glGetUniformLocation(program, "mode"), 4);
+			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, f.model_matrix);
+			glDrawElements(GL_TRIANGLES, f.creation_val, GL_UNSIGNED_INT, (void*)(f.creation_val * 0 * sizeof(GLuint)));
 		}
 
-		int del_tank_checker = 0;
 		for (auto& t : tanks) {
-			if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine)) {
-				del_tank_checker++;
-				continue;
-			}
-			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane == b.plane)
-			{
-				bullet_break_checker = true;
-				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
-				{
-					t.health--;
-					if (t.health == 0) del_tanks.push_back(del_tank_checker);
+			t.update();
+			if (t.isenemy) {
+				enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks);
+				float time_now = (float)glfwGetTime() - start_time;
+				if (time_now - t.bulletstamp > 2.0f) {
+					t.bulletstamp = time_now;
+					int shot_fire_check = rand() % 2;
+					if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
 				}
 			}
-			del_tank_checker++;
+			else if (t.movflag) player_move(&t, walls, tanks);
+			glUniform1i(glGetUniformLocation(program, "mode"), 3);
+			GLint uloc;
+			uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
+			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
+			glDrawElements(GL_TRIANGLES, t.creation_val, GL_UNSIGNED_INT, (void*)(fields[0].creation_val * 1 * sizeof(GLuint)));
 		}
 
-		if (abs(b.center.x) + abs(b.center.y) >= 180) {
-			bullet_break_checker = true;
+		for (auto& w : walls) {
+			w.update();
+			if (!w.breakable) {
+				glUniform1i(glGetUniformLocation(program, "mode"), 1);
+			}
+			else if (w.broken) {
+
+			}
+			else if (w.is_base) {
+				glUniform1i(glGetUniformLocation(program, "mode"), 2);
+			}
+			else {
+				glUniform1i(glGetUniformLocation(program, "mode"), 0);
+			}
+			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, w.model_matrix);
+			glDrawElements(GL_TRIANGLES, w.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val) * sizeof(GLuint)));
+
 		}
 
-		del_bullet_checker++;
-		if (bullet_break_checker) {
-			del_bullets.push_back(del_bullet_checker);
+		int del_bullet_checker = 0;
+		for (auto& b : bullets) {
+			bool bullet_break_checker = false;
+			int del_wall_checker = 0;
+			for (auto& w : walls) {
+				if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) <= 10.0f && w.plane == b.plane) {
+					if (player->plane != w.plane) continue;
+					bullet_break_checker = true;
+					if (w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
+					else if (w.is_base) {
+						if (base_health > 1) {
+							base_health--;
+							if (!(engine->isCurrentlyPlaying(base_attack_sound))) engine->play2D(base_attack_sound, false);
+						}
+						else {
+							del_walls.push_back(del_wall_checker);
+							engine->play2D(base_explode_sound, false);
+						}
+					}
+				}
+				del_wall_checker++;
+			}
+
+			int del_tank_checker = 0;
+			for (auto& t : tanks) {
+				if ((!t.isenemy && b.is_mine) || (t.isenemy && !b.is_mine)) {
+					del_tank_checker++;
+					continue;
+				}
+				if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane == b.plane)
+				{
+					bullet_break_checker = true;
+					if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
+					{
+						t.health--;
+						if (t.health == 0) del_tanks.push_back(del_tank_checker);
+					}
+				}
+				del_tank_checker++;
+			}
+
+			if (abs(b.center.x) + abs(b.center.y) >= 180) {
+				bullet_break_checker = true;
+			}
+
+			del_bullet_checker++;
+			if (bullet_break_checker) {
+				del_bullets.push_back(del_bullet_checker);
+			}
+			b.update();
+			glUniform1i(glGetUniformLocation(program, "mode"), 3);
+			GLint uloc;
+			uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
+			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, b.model_matrix);
+			glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
+
 		}
-		b.update();
-		glUniform1i(glGetUniformLocation(program, "mode"), 3);
-		GLint uloc;
-		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
-		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, b.model_matrix);
-		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val) * sizeof(GLuint)));
 
+		int i = 1;
+		for (auto& db : del_bullets)
+		{
+			bullets.erase(bullets.begin() + db - i);
+			i++;
+		}
+		del_bullets.clear();
+
+		i = 0;
+		for (auto& dw : del_walls)
+		{
+			walls.erase(walls.begin() + dw - i);
+			i++;
+		}
+		del_walls.clear();
+
+		i = 0;
+		for (auto& dt : del_tanks)
+		{
+			tanks.erase(tanks.begin() + dt - i);
+			i++;
+		}
+		del_tanks.clear();
+
+		// swap front and back buffers, and display to screen
+		glfwSwapBuffers(window);
 	}
+	else if (game_mode == 0) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	int i = 1;
-	for (auto& db : del_bullets)
-	{
-		bullets.erase(bullets.begin() + db - i);
-		i++;
-	}
-	del_bullets.clear();
+	// bind program
+	glUseProgram(program);
 
-	i = 0;
-	for (auto& dw : del_walls)
-	{
-		walls.erase(walls.begin() + dw - i);
-		i++;
-	}
-	del_walls.clear();
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, intro);
+	glUniform1i(glGetUniformLocation(program, "TEX3"), 3);
 
-	i = 0;
-	for (auto& dt : del_tanks)
-	{
-		tanks.erase(tanks.begin() + dt - i);
-		i++;
-	}
-	del_tanks.clear();
-
-	// swap front and back buffers, and display to screen
+	glUniform1i(glGetUniformLocation(program, "intro"), 0);
+	glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
+	
+	glBindVertexArray(vertex_array_intro);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glfwSwapBuffers(window);
+	}
 }
 
 void reshape(GLFWwindow* window, int width, int height) {
@@ -271,6 +308,9 @@ void print_help() {
 	printf("- press < or > key t adjust pan speed\n");
 	printf("- press 's' to stay still\n");
 	printf("- press 'a' to fire\n");
+	printf("- press 'f' to toggle fullscreen mode\n");
+	printf("- press 'r' to reset game\n");
+
 }
 
 
@@ -305,7 +345,6 @@ GLuint create_texture(const char* image_path, bool b_mipmap)
 }
 
 
-
 void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	static GLuint vertex_buffer = 0;	// ID holder for vertex buffer
 	static GLuint index_buffer = 0;		// ID holder for index buffer
@@ -338,6 +377,8 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	iron = create_texture(iron_path, true);			if (iron == -1) printf("iron image not loaded!\n");
 	skku = create_texture(skku_path, true);			if (skku == -1) printf("skku image not loaded!\n");
 }
+
+void user_reset();
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS) {
@@ -383,19 +424,36 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			glPolygonMode(GL_FRONT_AND_BACK, b_wireframe ? GL_LINE : GL_FILL);
 			printf("> using %s mode\n", b_wireframe ? "wireframe" : "solid");
 		}
+		else if (key == GLFW_KEY_F) {
+			int w_=1920, h_=1080;
+			glfwSetWindowPos(window, 0, 40);
+			//glfwGetWindowSize(window, &w_, &h_);
+			fullscreen_flag = !fullscreen_flag;
+			fullscreen_flag ? glfwSetWindowSize(window, w_, h_) : glfwSetWindowSize(window, 1280, 720);
+		}
+		else if (key == GLFW_KEY_R) {
+			user_reset();
+		}
 	}
 }
 
 void mouse(GLFWwindow* window, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
-		vec2 npos = cursor_to_ndc(pos, window_size);
-		if (zoom + pan > 0) {
-			zoom = pan = 0;
-			printf("disabled zoom and pan!\n");
+		if (game_mode == 1) {
+			dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
+			vec2 npos = cursor_to_ndc(pos, window_size);
+			if (zoom + pan > 0) {
+				zoom = pan = 0;
+				printf("disabled zoom and pan!\n");
+			}
+			if (action == GLFW_PRESS)			tb.begin(cam.view_matrix, npos);
+			else if (action == GLFW_RELEASE)	tb.end();
 		}
-		if (action == GLFW_PRESS)			tb.begin(cam.view_matrix, npos);
-		else if (action == GLFW_RELEASE)	tb.end();
+		else if (game_mode == 0) {
+			game_mode = 1;
+			engine->play2D(bgm, true);
+		}
+		
 	}
 	else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
 		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
@@ -468,9 +526,42 @@ bool user_init() {
 	base_explode_sound->setDefaultVolume(0.4f);
 	bgm->setDefaultVolume(0.6f);
 
-	engine->play2D(bgm, true);
+	vertex corners[4];
+	corners[0].pos = vec3(-1.0f, -1.0f, 0.0f);	corners[0].tex = vec2(0.0f, 0.0f);
+	corners[1].pos = vec3(+1.0f, -1.0f, 0.0f);	corners[1].tex = vec2(1.0f, 0.0f);
+	corners[2].pos = vec3(+1.0f, +1.0f, 0.0f);	corners[2].tex = vec2(1.0f, 1.0f);
+	corners[3].pos = vec3(-1.0f, +1.0f, 0.0f);	corners[3].tex = vec2(0.0f, 1.0f);
+	vertex intro_vertices[6] = { corners[0], corners[1], corners[2], corners[0], corners[2], corners[3] };
+
+	GLuint vertex_buffer_intro;
+	glGenBuffers(1, &vertex_buffer_intro);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_intro);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(intro_vertices), intro_vertices, GL_STATIC_DRAW);
+
+	if (vertex_array_intro) glDeleteVertexArrays(1, &vertex_array_intro);
+	vertex_array_intro = cg_create_vertex_array(vertex_buffer_intro);
+	if (!vertex_array_intro) { printf("%s(): failed to create vertex aray\n", __func__); return false; }
+
+	intro = create_texture(intro_path, true);	if (intro == -1) return false;
 
 	return true;
+}
+
+void user_reset() {
+	fields.clear();
+	tanks.clear();
+	walls.clear();
+	bullets.clear();
+	fields = create_field();
+	tanks = create_tank();
+	walls = create_wall();
+
+	unit_field_vertices.clear();
+	unit_tank_vertices.clear();
+	unit_wall_vertices.clear();
+	unit_bullet_vertices.clear();
+
+	player = &tanks[0];
 }
 
 void user_finalize() {

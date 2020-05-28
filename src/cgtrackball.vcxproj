@@ -55,6 +55,7 @@
   <ItemGroup>
     <ClCompile Include="gl\glad\glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h" />

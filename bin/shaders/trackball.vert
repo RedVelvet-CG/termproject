@@ -7,16 +7,22 @@ layout(location=2) in vec2 texcoord;
 uniform mat4 model_matrix;
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
+uniform int intro;
 
+out vec4 epos;
 out vec3 norm;
 out vec2 tc;
 
 void main()
 {
-	vec4 wpos = model_matrix * vec4(position,1);
-	vec4 epos = view_matrix * wpos;
-	gl_Position = projection_matrix * epos;
-
+	if (intro == 0) {
+		gl_Position = vec4(position, 1);
+	}
+	else {
+		vec4 wpos = model_matrix * vec4(position, 1);
+		vec4 epos = view_matrix * wpos;
+		gl_Position = projection_matrix * epos;
+	}
 	// pass eye-coordinate normal to fragment shader
 	norm = normalize(mat3(view_matrix*model_matrix)*normal);
 	tc = texcoord;

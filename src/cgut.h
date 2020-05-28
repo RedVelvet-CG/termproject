@@ -305,6 +305,7 @@ inline GLFWwindow* cg_create_window( const char* name, int& width, int& height, 
 	}
 
 	// create a windowed mode window and its OpenGL context
+	//GLFWwindow* win = glfwCreateWindow(1920, 1080, name, glfwGetPrimaryMonitor(), NULL); if (!win) { printf("Failed to create a GLFW window.\n"); glfwTerminate(); return nullptr; }
 	GLFWwindow* win = glfwCreateWindow( width, height, name, nullptr, nullptr ); if(!win){ printf( "Failed to create a GLFW window.\n" ); glfwTerminate(); return nullptr; }
 
 	// get the screen size and locate the window in the center

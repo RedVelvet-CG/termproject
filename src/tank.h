@@ -29,7 +29,6 @@ struct tank {
 	int		diroffset = 0;
 	int		dirs[4] = { 0,1,2,3 };
 	float	dirvec[4] = { 0, -PI / 2, PI, PI / 2 };
-	bool	is_moving = true;
 
 	inline void update();
 };
@@ -189,7 +188,6 @@ inline void player_activate(tank* player, int dir, bool activate) {
 	}
 	else {
 		player->movflag = false;
-		player->is_moving = false;
 	}
 }
 
@@ -217,7 +215,7 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 			if (player->center.x - w.center.x <= 20.0f && player->center.x > w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
 				if (player->center.y - w.center.y > 18.0f) { player->center.y = ceil(player->center.y + 1); }
 				else if (w.center.y - player->center.y > 18.0f) { player->center.y = floor(player->center.y - 1); }
-				else { player->is_moving = false;	return true; }
+				else {return true; }
 			}
 		}
 	}
@@ -227,7 +225,7 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 			if (w.center.y - player->center.y <= 20.0f && w.center.y > player->center.y && abs(player->center.x - w.center.x) < 19.9f) {
 				if (player->center.x - w.center.x > 18.0f) { player->center.x = ceil(player->center.x + 1); }
 				else if (w.center.x - player->center.x > 18.0f) { player->center.x = floor(player->center.x - 1); }
-				else { player->is_moving = false;	return true; }
+				else {return true; }
 			}
 		}
 	}
@@ -237,7 +235,7 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 			if (w.center.x - player->center.x <= 20.0f && player->center.x < w.center.x && abs(player->center.y - w.center.y) < 19.9f) {
 				if (player->center.y - w.center.y > 18.0f) { player->center.y = ceil(player->center.y + 1); }
 				else if (w.center.y - player->center.y > 18.0f) { player->center.y = floor(player->center.y - 1); }
-				else { player->is_moving = false;	return true; }
+				else {return true; }
 			}
 		}
 	}
@@ -247,7 +245,7 @@ inline bool tank_wall_collision(tank* player, std::vector<wall> walls, char lrud
 			if (player->center.y - w.center.y <= 20.0f && player->center.y > w.center.y && abs(player->center.x - w.center.x) < 19.9f) {
 				if (player->center.x - w.center.x > 18.0f) { player->center.x = ceil(player->center.x + 1); }
 				else if (w.center.x - player->center.x > 18.0f) { player->center.x = floor(player->center.x - 1); }
-				else { player->is_moving = false;	return true; }
+				else { return true; }
 			}
 		}
 	}
@@ -259,7 +257,7 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 		for (auto& t : tanks) {
 			if (!t.isenemy || player->plane != t.plane) continue;
 			if (player->center.x - t.center.x <= 20.0f && player->center.x > t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
-				player->is_moving = false;	return true;
+				return true;
 			}
 		}
 	}
@@ -267,7 +265,7 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 		for (auto& t : tanks) {
 			if (!t.isenemy || player->plane != t.plane) continue;
 			if (t.center.y - player->center.y <= 20.0f && t.center.y > player->center.y && abs(player->center.x - t.center.x) < 19.9f) {
-				player->is_moving = false;	return true;
+				return true;
 			}
 		}
 	}
@@ -275,7 +273,7 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 		for (auto& t : tanks) {
 			if (!t.isenemy || player->plane != t.plane) continue;
 			if (t.center.x - player->center.x <= 20.0f && player->center.x < t.center.x && abs(player->center.y - t.center.y) < 19.9f) {
-				player->is_moving = false;	return true;
+				return true;
 			}
 		}
 	}
@@ -284,7 +282,7 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 			if (!t.isenemy) continue;
 			if (player->plane != t.plane) continue;
 			if (player->center.y - t.center.y <= 20.0f && player->center.y > t.center.y && abs(player->center.x - t.center.x) < 19.9f) {
-				player->is_moving = false;	return true;
+				return true;
 			}
 		}
 	}
@@ -293,7 +291,6 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 
 inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
 	int dir = player->dir;
-	player->is_moving = true;
 	if (player->plane == 0) {
 		if (dir == 0) {
 			if (player->center.x <= -80) {
