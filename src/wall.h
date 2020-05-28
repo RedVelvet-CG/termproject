@@ -64,6 +64,12 @@ void create_wall_vertices(std::vector<vertex>& v) {
 
 inline void create_front_wall(std::vector<wall>& walls, bool life, int plane = 0) {
 	wall w;
+
+	if (life) {
+		w = { vec3(0.0f, 0.0f, 100.0f),true,false,true, plane };
+		walls.emplace_back(w);
+	}
+
 	w = { vec3(-60.0f, 60.0f, 100.0f),true,false,false, plane };
 	walls.emplace_back(w);
 	w = { vec3(-60.0f, 40.0f, 100.0f),false,false,false, plane };
@@ -119,10 +125,6 @@ inline void create_front_wall(std::vector<wall>& walls, bool life, int plane = 0
 	w = { vec3(60.0f, -40.0f, 100.0f),false,false,false, plane };
 	walls.emplace_back(w);
 	w = { vec3(60.0f, -60.0f, 100.0f),true,false,false, plane };
-	walls.emplace_back(w);
-
-	if (!life) return;
-	w = { vec3(0.0f, 0.0f, 100.0f),true,false,true, plane };
 	walls.emplace_back(w);
 }
 
