@@ -94,11 +94,14 @@ std::vector<vertex> unit_bullet_vertices;
 //game variables
 tank* player = &tanks[0];
 int		movdir = 1;
+float	gametick = 0.0f;
 
 
 void update() {
 	// update projection matrix
-	
+	float tmp_gametick = (float)glfwGetTime();
+	if (gametick + 0.005f > tmp_gametick) return;
+	gametick = tmp_gametick;
 	if (game_mode == 0) {
 		glUseProgram(program);
 	}
