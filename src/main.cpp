@@ -308,6 +308,9 @@ void print_help() {
 	printf("- press < or > key t adjust pan speed\n");
 	printf("- press 's' to stay still\n");
 	printf("- press 'a' to fire\n");
+	printf("- press 'f' to toggle fullscreen mode\n");
+	printf("- press 'r' to reset game\n");
+
 }
 
 
@@ -375,6 +378,8 @@ void update_vertex_buffer(const std::vector<vertex>& vertices, uint N) {
 	skku = create_texture(skku_path, true);			if (skku == -1) printf("skku image not loaded!\n");
 }
 
+void user_reset();
+
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q)	glfwSetWindowShouldClose(window, GL_TRUE);
@@ -425,6 +430,9 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			//glfwGetWindowSize(window, &w_, &h_);
 			fullscreen_flag = !fullscreen_flag;
 			fullscreen_flag ? glfwSetWindowSize(window, w_, h_) : glfwSetWindowSize(window, 1280, 720);
+		}
+		else if (key == GLFW_KEY_R) {
+			user_reset();
 		}
 	}
 }
@@ -537,6 +545,23 @@ bool user_init() {
 	intro = create_texture(intro_path, true);	if (intro == -1) return false;
 
 	return true;
+}
+
+void user_reset() {
+	fields.clear();
+	tanks.clear();
+	walls.clear();
+	bullets.clear();
+	fields = create_field();
+	tanks = create_tank();
+	walls = create_wall();
+
+	unit_field_vertices.clear();
+	unit_tank_vertices.clear();
+	unit_wall_vertices.clear();
+	unit_bullet_vertices.clear();
+
+	player = &tanks[0];
 }
 
 void user_finalize() {
