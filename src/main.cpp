@@ -198,7 +198,7 @@ void render() {
 				}
 			}
 			else if (t.movflag) player_move(&t, walls, tanks);
-			glUniform1i(glGetUniformLocation(program, "mode"), 3);
+			glUniform1i(glGetUniformLocation(program, "mode"), 4);
 			GLint uloc;
 			uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
@@ -274,7 +274,7 @@ void render() {
 				del_bullets.push_back(del_bullet_checker);
 			}
 			b.update();
-			glUniform1i(glGetUniformLocation(program, "mode"), 3);
+			glUniform1i(glGetUniformLocation(program, "mode"), 2);
 			GLint uloc;
 			uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
 			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, b.model_matrix);
