@@ -289,7 +289,7 @@ inline bool tank_tank_collision(tank* player, std::vector<tank> tanks, char lrud
 	return false;
 }
 
-inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks) {
+inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank> tanks, float elapsedTime) {
 	int dir = player->dir;
 	if (player->plane == 0) {
 		if (dir == 0) {
@@ -298,7 +298,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -306,7 +306,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -314,7 +314,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		else {
 			if (player->center.y <= -80) {
@@ -322,7 +322,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 	else if (player->plane == 1) {
@@ -332,7 +332,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -340,7 +340,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -348,7 +348,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		else {
 			if (player->center.y <= -80) {
@@ -356,7 +356,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 	else if (player->plane == 2) {
@@ -366,7 +366,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -374,7 +374,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -382,7 +382,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		else {
 			if (player->center.y <= -80) {
@@ -390,7 +390,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 	else if (player->plane == 3) {
@@ -400,7 +400,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -408,7 +408,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -416,7 +416,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 3) {
 			if (player->center.y <= -80) {
@@ -424,7 +424,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 	else if (player->plane == 4) {
@@ -434,7 +434,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -442,7 +442,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -450,7 +450,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 3) {
 			if (player->center.y <= -80) {
@@ -458,7 +458,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 	else if (player->plane == 5) {
@@ -468,7 +468,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'l') || tank_tank_collision(player, tanks, 'l')) return;
-			player->center.x -= 0.1f;
+			player->center.x -= 0.1f * elapsedTime * 500;
 		}
 		if (dir == 1) {
 			if (player->center.y >= 80) {
@@ -476,7 +476,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'u') || tank_tank_collision(player, tanks, 'u')) return;
-			player->center.y += 0.1f;
+			player->center.y += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 2) {
 			if (player->center.x >= 80) {
@@ -484,7 +484,7 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'r') || tank_tank_collision(player, tanks, 'r')) return;
-			player->center.x += 0.1f;
+			player->center.x += 0.1f * elapsedTime * 500;
 		}
 		if (dir == 3) {
 			if (player->center.y <= -80) {
@@ -492,12 +492,12 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 			}
 			else { player->movplane = false; }
 			if (tank_wall_collision(player, walls, 'd') || tank_tank_collision(player, tanks, 'd')) return;
-			player->center.y -= 0.1f;
+			player->center.y -= 0.1f * elapsedTime * 500;
 		}
 	}
 }
 
-inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> walls, std::vector<tank> tanks) {
+inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> walls, std::vector<tank> tanks, float elapsedTime) {
 	//if (player->plane != enemy->plane) return;
 	if (enemy->timestamp < 1.0f) {
 		int dir = enemy->dir;
@@ -522,7 +522,7 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->plane != t.plane) continue;
 				if (enemy->center.x - t.center.x <= 20.0f && enemy->center.x > t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 			}
-			enemy->center.x -= 0.1f;
+			enemy->center.x -= 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 1) {
 			if (enemy->center.y >= 80) { enemy->timestamp = 3.0f;  return; }
@@ -545,7 +545,7 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->plane != t.plane) continue;
 				if (t.center.y - enemy->center.y <= 20.0f && t.center.y > enemy->center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 			}
-			enemy->center.y += 0.1f;
+			enemy->center.y += 0.1f * elapsedTime * 500;
 		}
 		else if (dir == 2) {
 			if (enemy->center.x >= 80) { enemy->timestamp = 3.0f;  return; }
@@ -568,7 +568,7 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->plane != t.plane) continue;
 				if (t.center.x - enemy->center.x <= 20.0f && enemy->center.x < t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 			}
-			enemy->center.x += 0.1f;
+			enemy->center.x += 0.1f * elapsedTime * 500;
 		}
 		else {
 			if (enemy->center.y <= -80) { enemy->timestamp = 3.0f;  return; }
@@ -591,7 +591,7 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 				if (enemy->plane != t.plane) continue;
 				if (enemy->center.y - t.center.y <= 20.0f && enemy->center.y > t.center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
 			}
-			enemy->center.y -= 0.1f;
+			enemy->center.y -= 0.1f * elapsedTime * 500;
 		}
 		enemy->timestamp += 0.005f;
 	}

@@ -173,7 +173,7 @@ void render_tank(float elapsedTime) {
 	for (auto& t : tanks) {
 		t.update();
 		if (t.isenemy) {
-			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks);
+			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks, elapsedTime);
 			float time_now = (float)glfwGetTime() - start_time;
 			if (time_now - t.bulletstamp > 2.0f) {
 				t.bulletstamp = time_now;
@@ -181,7 +181,7 @@ void render_tank(float elapsedTime) {
 				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
 			}
 		}
-		else if (t.movflag) player_move(&t, walls, tanks);
+		else if (t.movflag) player_move(&t, walls, tanks, elapsedTime);
 		if (t.isenemy == false) {
 			glUniform1i(glGetUniformLocation(program, "mode"), 2);
 		}
