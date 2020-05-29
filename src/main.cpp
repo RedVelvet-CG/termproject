@@ -106,11 +106,11 @@ int		movdir = 1;
 float	gametick = 0.0f;
 
 
-void update() {
+void update(float elapsedTime) {
 	// update projection matrix
-	float tmp_gametick = (float)glfwGetTime();
-	if (gametick + 0.005f > tmp_gametick) return;
-	gametick = tmp_gametick;
+	//float tmp_gametick = (float)glfwGetTime();
+	//if (gametick + 0.0166f > tmp_gametick) return;
+	//gametick = tmp_gametick;
 	if (game_mode == 0) {
 		glUseProgram(program);
 	}
@@ -169,7 +169,7 @@ void render_field() {
 	}
 }
 
-void render_tank() {
+void render_tank(float elapsedTime) {
 	for (auto& t : tanks) {
 		t.update();
 		if (t.isenemy) {
@@ -225,7 +225,7 @@ void render_mirror() {
 }
 
 
-void render_bullet() {
+void render_bullet(float elapsedTime) {
 	int del_bullet_checker = 0;
 	for (auto& b : bullets) {
 		bool bullet_break_checker = false;
@@ -276,7 +276,7 @@ void render_bullet() {
 		if (bullet_break_checker) {
 			del_bullets.push_back(del_bullet_checker);
 		}
-		b.update();
+		b.update(elapsedTime);
 		glUniform1i(glGetUniformLocation(program, "mode"), 2);
 		GLint uloc;
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
@@ -312,7 +312,7 @@ void delete_tank() {
 	del_tanks.clear();
 }
 
-void render() {
+void render(float elapsedTime) {
 
 	if (game_mode == 1) {
 		glUniform1i(glGetUniformLocation(program, "intro"), 1);
@@ -340,10 +340,10 @@ void render() {
 		glUniform1i(glGetUniformLocation(program, "TEX2"), 2);
 
 		render_field();
-		render_tank();
+		render_tank(elapsedTime);
 		render_wall();
 		render_mirror();
-		render_bullet();
+		render_bullet(elapsedTime);
 
 		physics_reflect_bullet(bullets, mirrors);
 
@@ -677,10 +677,14 @@ int main(int argc, char* argv[]) {
 	glfwSetCursorPosCallback(window, motion);		// callback for mouse movement
 	// enters rendering/event loop
 	start_time = (float)glfwGetTime();
+	double lastTime = glfwGetTime();
+
 	for (frame = 0; !glfwWindowShouldClose(window); frame++) {
+		double currentTime = glfwGetTime();
 		glfwPollEvents();	// polling and processing of events
-		update();			// per-frame update
-		render();			// per-frame render
+		update((float)(currentTime-lastTime));			// per-frame update
+		render((float)(currentTime-lastTime));			// per-frame render
+		lastTime = currentTime;
 	}
 	// normal termination
 	user_finalize();
