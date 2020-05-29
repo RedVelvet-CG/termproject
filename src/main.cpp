@@ -269,7 +269,11 @@ void render_bullet(float elapsedTime) {
 			del_tank_checker++;
 		}
 
-		if (abs(b.center.x) + abs(b.center.y) >= 180) {
+		if (abs(b.center.x*b.center.x) + abs(b.center.y*b.center.y) >= 40000) {
+			physics_refract_bullet(b, elapsedTime);
+		}
+
+		if (abs(b.center.x*b.center.x) + abs(b.center.y*b.center.y) >= 90000) {
 			bullet_break_checker = true;
 		}
 

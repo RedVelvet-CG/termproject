@@ -43,9 +43,10 @@ void physics_push_tank(tank& t, bullet& b) {
 	}
 }
 
-void physics_refraction_bullet(std::vector<bullet>& bullets) {
-
-
+void physics_refract_bullet(bullet& b, float elapsedTime) {
+	b.planevec[b.plane][0] > 0 ? b.planevec[b.plane][0] += elapsedTime*0.5f: b.planevec[b.plane][0] -= elapsedTime*0.5f;
+	b.planevec[b.plane][1] > 0 ? b.planevec[b.plane][1] += elapsedTime*0.5f: b.planevec[b.plane][1] -= elapsedTime*0.5f;
+	b.planevec[b.plane][2] > 0 ? b.planevec[b.plane][2] += elapsedTime*0.5f: b.planevec[b.plane][2] -= elapsedTime*0.5f;
 }
 
 #endif
