@@ -8,6 +8,7 @@
 #include "stb_image.h"
 #include "bullet.h"
 #include "mirror.h"
+#include "physics.h"
 #include <cstdlib>
 #include <ctime>
 #include "irrKlang\irrKlang.h"
@@ -223,6 +224,7 @@ void render_mirror() {
 	}
 }
 
+
 void render_bullet() {
 	int del_bullet_checker = 0;
 	for (auto& b : bullets) {
@@ -255,6 +257,7 @@ void render_bullet() {
 			}
 			if (abs(t.center.x - b.center.x) + abs(t.center.y - b.center.y) <= 10.0f && t.plane == b.plane)
 			{
+				physics_push_tank(t, b);
 				bullet_break_checker = true;
 				if ((t.isenemy && b.is_mine) || (!t.isenemy && !b.is_mine))
 				{
@@ -279,28 +282,6 @@ void render_bullet() {
 		uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, b.color);
 		glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, b.model_matrix);
 		glDrawElements(GL_TRIANGLES, b.creation_val, GL_UNSIGNED_INT, (void*)((fields[0].creation_val + tanks[0].creation_val + walls[0].creation_val + mirrors[0].creation_val) * sizeof(GLuint)));
-	}
-}
-
-void bounce_bullet() {
-	for (auto& b : bullets) {
-		for (auto& mir : mirrors) {
-			if (abs(mir.center.x - b.center.x) + abs(mir.center.y - b.center.y) <= 1.0f && mir.plane == b.plane) {
-				if (b.dir == 0) {
-					b.dir = 3;
-				}
-				else if (b.dir == 1) {
-					b.dir = 2;
-				}
-				else if (b.dir == 2) {
-					b.dir = 1;
-				}
-				else {
-					b.dir = 0;
-				}
-			}
-		}
-
 	}
 }
 
@@ -364,7 +345,7 @@ void render() {
 		render_mirror();
 		render_bullet();
 
-		bounce_bullet();
+		physics_reflect_bullet(bullets, mirrors);
 
 		delete_bullet();
 		delete_wall();
