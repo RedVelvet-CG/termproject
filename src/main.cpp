@@ -80,7 +80,7 @@ int		pan = 0;
 int		zoomval = 50;
 int		panval = 30;
 bool	b_wireframe = false;
-int		base_health = 5;
+int		base_health = 6;
 int		game_mode = 0;			// 0 = intro, 1 = main game, 2 = ending, 3 = game over
 std::vector<bullet> bullets;
 std::vector<int>	del_bullets;
@@ -107,10 +107,6 @@ float	gametick = 0.0f;
 
 
 void update(float elapsedTime) {
-	// update projection matrix
-	//float tmp_gametick = (float)glfwGetTime();
-	//if (gametick + 0.0166f > tmp_gametick) return;
-	//gametick = tmp_gametick;
 	if (game_mode == 0) {
 		glUseProgram(program);
 	}
@@ -138,8 +134,13 @@ void render_text_part() {
 
 	std::string your_health_string = "Your health: ";
 	std::string your_health_value = std::to_string(player->health);
-	for (int i = 0; i < (int)your_health_value.length(); i++) {
-		your_health_string.push_back(your_health_value[i]);
+	if (player->tank_id == 0) {
+		for (int i = 0; i < (int)your_health_value.length(); i++) {
+			your_health_string.push_back(your_health_value[i]);
+		}
+	}
+	else {
+		your_health_string.push_back('0');
 	}
 	render_text(your_health_string, 50, 100, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
 
@@ -174,8 +175,9 @@ void render_tank(float elapsedTime) {
 		t.update();
 		if (t.isenemy) {
 			enemy_move(player, &t, (float)glfwGetTime() * 10000, walls, tanks, elapsedTime);
+			//player_move(&t, walls, tanks, elapsedTime);
 			float time_now = (float)glfwGetTime() - start_time;
-			if (time_now - t.bulletstamp > 2.0f) {
+			if (time_now - t.bulletstamp > 1.0f) {
 				t.bulletstamp = time_now;
 				int shot_fire_check = rand() % 2;
 				if (shot_fire_check == 1) bullets = create_bullet(bullets, t);
@@ -232,12 +234,11 @@ void render_bullet(float elapsedTime) {
 		int del_wall_checker = 0;
 		for (auto& w : walls) {
 			if (abs(w.center.x - b.center.x) + abs(w.center.y - b.center.y) <= 10.0f && w.plane == b.plane) {
-				if (player->plane != w.plane) continue;
 				bullet_break_checker = true;
 				if (w.breakable && !w.is_base) del_walls.push_back(del_wall_checker);
 				else if (w.is_base) {
-					if (base_health > 1) {
-						base_health--;
+					base_health--;
+					if (base_health > 0) {
 						if (!(engine->isCurrentlyPlaying(base_attack_sound))) engine->play2D(base_attack_sound, false);
 					}
 					else {
@@ -656,6 +657,7 @@ void user_reset() {
 	unit_bullet_vertices.clear();
 
 	player = &tanks[0];
+	player->health = 6;
 }
 
 void user_finalize() {
@@ -669,6 +671,7 @@ int main(int argc, char* argv[]) {
 	if (!cg_init_extensions(window)) { glfwTerminate(); return 1; }	// version and extensions
 	// initializations and validations
 	if (!(program = cg_create_program(vert_shader_path, frag_shader_path))) { glfwTerminate(); return 1; }	// create and compile shaders/program
+	user_reset();
 	if (!user_init()) { printf("Failed to user_init()\n"); glfwTerminate(); return 1; }					// user initialization
 	// register event callbacks
 	glfwSetWindowSizeCallback(window, reshape);	// callback for window resizing events
