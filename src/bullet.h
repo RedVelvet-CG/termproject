@@ -19,6 +19,7 @@ struct bullet {
 	int		creation_val = 3 * 14;
 	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
 	vec3	movvec[4] = { {-0.5, 0, 0}, {0, 0.5, 0}, {0.5, 0, 0}, {0, -0.5, 0} };
+	bool	out_of_atmosphere = false;
 
 	void update();
 };
