@@ -499,10 +499,10 @@ inline void player_move(tank* player, std::vector<wall> walls, std::vector<tank>
 
 inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> walls, std::vector<tank> tanks, float elapsedTime) {
 	//if (player->plane != enemy->plane) return;
-	if (enemy->timestamp < 1.0f) {
+	if (enemy->timestamp < 1.0f*elapsedTime) {
 		int dir = enemy->dir;
 		if (dir == 0) {
-			if (enemy->center.x <= -80) { enemy->timestamp = 3.0f;  return; }
+			if (enemy->center.x <= -80) { enemy->timestamp = 3.0f * elapsedTime;  return; }
 			for (auto& w : walls) {
 				if (enemy->plane != w.plane) continue;
 				if (enemy->center.x - w.center.x <= 20.0f && enemy->center.x > w.center.x && abs(enemy->center.y - w.center.y) < 19.9f) {
@@ -513,14 +513,15 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 						enemy->center.y = floor(enemy->center.y);
 					}
 					else {
-						enemy->timestamp += 0.1f;  return;
+						enemy->timestamp += 0.1f * elapsedTime;  return;
 					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (enemy->tank_id == t.tank_id) continue;
 				if (enemy->plane != t.plane) continue;
-				if (enemy->center.x - t.center.x <= 20.0f && enemy->center.x > t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+				if (enemy->center.x - t.center.x <= 20.0f && enemy->center.x > t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { 
+					enemy->timestamp += 0.1f * elapsedTime;  return; }
 			}
 			enemy->center.x -= 0.1f * elapsedTime * 500;
 		}
@@ -536,14 +537,15 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 						enemy->center.x = floor(enemy->center.x);
 					}
 					else {
-						enemy->timestamp += 0.1f;  return;
+						enemy->timestamp += 0.1f * elapsedTime;  return;
 					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (enemy->tank_id == t.tank_id) continue;
 				if (enemy->plane != t.plane) continue;
-				if (t.center.y - enemy->center.y <= 20.0f && t.center.y > enemy->center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+				if (t.center.y - enemy->center.y <= 20.0f && t.center.y > enemy->center.y && abs(enemy->center.x - t.center.x) < 19.9f) { 
+					enemy->timestamp += 0.1f * elapsedTime;  return; }
 			}
 			enemy->center.y += 0.1f * elapsedTime * 500;
 		}
@@ -559,14 +561,15 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 						enemy->center.y = floor(enemy->center.y);
 					}
 					else {
-						enemy->timestamp += 0.1f;  return;
+						enemy->timestamp += 0.1f * elapsedTime;  return;
 					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (enemy->tank_id == t.tank_id) continue;
 				if (enemy->plane != t.plane) continue;
-				if (t.center.x - enemy->center.x <= 20.0f && enemy->center.x < t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+				if (t.center.x - enemy->center.x <= 20.0f && enemy->center.x < t.center.x && abs(enemy->center.y - t.center.y) < 19.9f) { 
+					enemy->timestamp += 0.1f * elapsedTime;  return; }
 			}
 			enemy->center.x += 0.1f * elapsedTime * 500;
 		}
@@ -582,18 +585,19 @@ inline void enemy_move(tank* player, tank* enemy, float hash, std::vector<wall> 
 						enemy->center.x = floor(enemy->center.x);
 					}
 					else {
-						enemy->timestamp += 0.1f;  return;
+						enemy->timestamp += 0.1f * elapsedTime;  return;
 					}
 				}
 			}
 			for (auto& t : tanks) {
 				if (enemy->tank_id == t.tank_id) continue;
 				if (enemy->plane != t.plane) continue;
-				if (enemy->center.y - t.center.y <= 20.0f && enemy->center.y > t.center.y && abs(enemy->center.x - t.center.x) < 19.9f) { enemy->timestamp += 0.1f;  return; }
+				if (enemy->center.y - t.center.y <= 20.0f && enemy->center.y > t.center.y && abs(enemy->center.x - t.center.x) < 19.9f) { 
+					enemy->timestamp += 0.1f * elapsedTime;  return; }
 			}
 			enemy->center.y -= 0.1f * elapsedTime * 500;
 		}
-		enemy->timestamp += 0.005f;
+		enemy->timestamp += 0.005f * elapsedTime;
 	}
 	else {
 		enemy->timestamp = 0.0f;
