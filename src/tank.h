@@ -19,7 +19,6 @@ struct tank {
 	bool	movplane = false;
 	int		health = 4;
 	mat4	model_matrix;		// modeling transformation
-	//float	dirPI[4] = { 0, -PI / 2, -PI, PI / 2};
 	int		creation_val = 3 * 2 * 6 * 3;
 	float	radius = 10.0f;		// radius
 	vec3	movval = vec3(0);
