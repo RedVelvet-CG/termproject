@@ -133,15 +133,6 @@ void render() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// render texts
-		render_text("Instructions", 950, 50, 0.8f, vec4(0.5f, 0.8f, 0.2f, 1.0f), 1.0f);
-		render_text("Move with arrow keys", 950, 75, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("Press 's' to stop", 950, 100, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("Press 'a' to attack", 950, 125, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("Press 'r' to reset", 950, 150, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("mouse l: move view", 950, 175, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("Ctrl -> mouse r: zoom", 950, 200, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-		render_text("Save base and survive", 950, 225, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
-
 		render_text("Dashboard", 50, 50, 0.8f, vec4(0.5f, 0.8f, 0.2f, 1.0f), 1.0f);
 		std::string enemy_string = "Enemy left: ";
 		std::string enemy_value = std::to_string(player->health>0?tanks.size()-1:tanks.size());
@@ -163,6 +154,15 @@ void render() {
 			base_health_string.push_back(base_health_value[i]);
 		}
 		render_text(base_health_string, 50, 125, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+
+		render_text("Instructions", 50, 500, 0.8f, vec4(0.5f, 0.8f, 0.2f, 1.0f), 1.0f);
+		render_text("Move with arrow keys", 50, 525, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 's' to stop", 50, 550, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 'a' to attack", 50, 575, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Press 'r' to reset", 50, 600, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("mouse l: move view", 50, 625, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Ctrl -> mouse r: zoom", 50, 650, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
+		render_text("Save SKKU and survive", 50, 675, 0.5f, vec4(0.7f, 0.4f, 0.1f, 0.8f), 1.0f);
 
 		glUseProgram(program); // notify GL that we use our own program
 		glBindVertexArray(vertex_array); // bind vertex array object	
@@ -198,7 +198,12 @@ void render() {
 				}
 			}
 			else if (t.movflag) player_move(&t, walls, tanks);
-			glUniform1i(glGetUniformLocation(program, "mode"), 4);
+			if (t.isenemy==false) {
+				glUniform1i(glGetUniformLocation(program, "mode"), 2);
+			}
+			else {
+				glUniform1i(glGetUniformLocation(program, "mode"), 4);
+			}
 			GLint uloc;
 			uloc = glGetUniformLocation(program, "color"); if (uloc > -1) glUniform4fv(uloc, 1, t.color);
 			glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_TRUE, t.model_matrix);
