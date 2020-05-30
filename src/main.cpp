@@ -27,10 +27,15 @@ static const char* brick_path = "../bin/images/brick.jpg";
 static const char* iron_path = "../bin/images/iron.jpg";
 static const char* skku_path = "../bin/images/skku.jpg";
 static const char* intro_path = "../bin/images/tank_intro.jpg";
+static const char* win_path = "../bin/images/win.jpg";
+static const char* lose_path = "../bin/images/game_over.jpg";
 static const char* fire_sound_path = "../bin/sounds/tank_fire.wav";
 static const char* base_attack_sound_path = "../bin/sounds/Base_under_attack.mp3";
 static const char* base_explode_sound_path = "../bin/sounds/base_explode.wav";
+static const char* tank_explode_sound_path = "../bin/sounds/tank_explode.wav";
 static const char* bgm_path = "../bin/sounds/bgm.mp3";
+static const char* winbgm_path = "../bin/sounds/skkusong.mp3";
+static const char* losebgm_path = "../bin/sounds/Game-over-yeah.mp3";
 uint				NUM_TESS = 50;		// initial tessellation factor of the circle as a polygon
 
 // common structures
@@ -57,15 +62,19 @@ GLuint	brick = 0;
 GLuint	iron = 0;
 GLuint	skku = 0;
 GLuint	intro = 0;
+GLuint	youwin = 0;
+GLuint  youlose = 0;
 
 //*******************************************************************
 // irrKlang objects
 irrklang::ISoundEngine* engine;
 irrklang::ISoundSource* fire_sound = nullptr;
+irrklang::ISoundSource* tank_death = nullptr;
 irrklang::ISoundSource* base_explode_sound = nullptr;
 irrklang::ISoundSource* base_attack_sound = nullptr;
 irrklang::ISoundSource* bgm = nullptr;
-
+irrklang::ISoundSource* winbgm = nullptr;
+irrklang::ISoundSource* losebgm = nullptr;
 
 // global variables
 int		frame = 0;				// index of rendering frames
@@ -81,12 +90,14 @@ int		zoomval = 50;
 int		panval = 30;
 bool	b_wireframe = false;
 int		base_health = 6;
-int		game_mode = 0;			// 0 = intro, 1 = main game, 2 = ending, 3 = game over
+int		game_mode = 0;			// 0 = intro, 1 = main game, 2 = ending(win), 3 = game over
+bool	lose_flag = false;
+double	lose_time = 0;
+
 std::vector<bullet> bullets;
 std::vector<int>	del_bullets;
 std::vector<int>	del_walls;
 std::vector<int>	del_tanks;
-
 
 // scene objects
 camera		cam;
@@ -107,10 +118,7 @@ float	gametick = 0.0f;
 
 
 void update(float elapsedTime) {
-	if (game_mode == 0) {
-		glUseProgram(program);
-	}
-	else if (game_mode == 1) {
+	if (game_mode == 1) {
 		cam.aspect = window_size.x / float(window_size.y);
 		cam.projection_matrix = mat4::perspective(cam.fovy, cam.aspect, cam.dnear, cam.dfar);
 		// build the model matrix for oscillating scale
@@ -119,7 +127,9 @@ void update(float elapsedTime) {
 		uloc = glGetUniformLocation(program, "view_matrix");		if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.view_matrix);
 		uloc = glGetUniformLocation(program, "projection_matrix");	if (uloc > -1) glUniformMatrix4fv(uloc, 1, GL_TRUE, cam.projection_matrix);
 	}
-	
+	else {
+		glUseProgram(program);
+	}
 }
 
 void render_text_part() {
@@ -243,7 +253,10 @@ void render_bullet(float elapsedTime) {
 					}
 					else {
 						del_walls.push_back(del_wall_checker);
+						engine->stopAllSounds();
 						engine->play2D(base_explode_sound, false);
+						lose_time = glfwGetTime();
+						lose_flag = true;
 					}
 				}
 			}
@@ -264,6 +277,12 @@ void render_bullet(float elapsedTime) {
 				{
 					t.health--;
 					if (t.health == 0) del_tanks.push_back(del_tank_checker);
+					if (!t.isenemy && t.health == 0) {
+						lose_flag = true;
+						lose_time = glfwGetTime();
+						engine->stopAllSounds();
+						engine->play2D(tank_death, false);
+					}
 				}
 			}
 			del_tank_checker++;
@@ -318,7 +337,10 @@ void delete_tank() {
 }
 
 void render(float elapsedTime) {
-
+	if (tanks.size() == 1) {
+		game_mode = 2;
+		if (engine->isCurrentlyPlaying(bgm)) engine->stopAllSounds();
+	}
 	if (game_mode == 1) {
 		glUniform1i(glGetUniformLocation(program, "intro"), 1);
 		glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
@@ -359,7 +381,7 @@ void render(float elapsedTime) {
 		// swap front and back buffers, and display to screen
 		glfwSwapBuffers(window);
 	}
-	else if (game_mode == 0) {
+	else {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// bind program
@@ -369,8 +391,23 @@ void render(float elapsedTime) {
 		glBindTexture(GL_TEXTURE_2D, intro);
 		glUniform1i(glGetUniformLocation(program, "TEX3"), 3);
 
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, youwin);
+		glUniform1i(glGetUniformLocation(program, "TEX4"),4);
+
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, youlose);
+		glUniform1i(glGetUniformLocation(program, "TEX5"), 5);
+
 		glUniform1i(glGetUniformLocation(program, "intro"), 0);
 		glUniform1i(glGetUniformLocation(program, "game_mode"), game_mode);
+
+		if (game_mode == 2) {
+			if (!engine->isCurrentlyPlaying(winbgm)) engine->play2D(winbgm, true);
+		}
+		else if (game_mode == 3) {
+			if (!engine->isCurrentlyPlaying(losebgm)) engine->play2D(losebgm, true);
+		}
 	
 		glBindVertexArray(vertex_array_intro);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -489,23 +526,35 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			printf("%s\n", zoom == 1 ? "enabled zoom!" : "disabled zoom!");
 		}
 		else if (key == GLFW_KEY_LEFT) {
-			player_activate(player, 0, true);
+			if (game_mode == 1) {
+				player_activate(player, 0, true);
+			}			
 		}
 		else if (key == GLFW_KEY_UP) {
-			player_activate(player, 1, true);
+			if (game_mode == 1) {
+				player_activate(player, 1, true);
+			}
 		}
 		else if (key == GLFW_KEY_RIGHT) {
-			player_activate(player, 2, true);
+			if (game_mode == 1) {
+				player_activate(player, 2, true);
+			}
 		}
 		else if (key == GLFW_KEY_DOWN) {
-			player_activate(player, 3, true);
+			if (game_mode == 1) {
+				player_activate(player, 3, true);
+			}
 		}
 		else if (key == GLFW_KEY_S) {
-			player_activate(player, player->dir, false);
+			if (game_mode == 1) {
+				player_activate(player, player->dir, false);
+			}
 		}
 		else if (key == GLFW_KEY_A) {
-			bullets = create_bullet(bullets, tanks[0]);
-			engine->play2D(fire_sound, false);
+			if (game_mode == 1 && !lose_flag) {
+				bullets = create_bullet(bullets, tanks[0]);
+				engine->play2D(fire_sound, false);
+			}
 		}
 		else if (key == GLFW_KEY_W)
 		{
@@ -521,6 +570,10 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			fullscreen_flag ? glfwSetWindowSize(window, w_, h_) : glfwSetWindowSize(window, 1280, 720);
 		}
 		else if (key == GLFW_KEY_R) {
+			game_mode = 0;
+			engine->stopAllSounds();
+			lose_flag = false;
+			cam = camera();
 			user_reset();
 		}
 	}
@@ -541,6 +594,13 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
 		else if (game_mode == 0) {
 			game_mode = 1;
 			engine->play2D(bgm, true);
+		}
+		else if (game_mode == 3) {
+			game_mode = 1;
+			lose_flag = false;
+			engine->stopAllSounds();
+			engine->play2D(bgm, true);
+			user_reset();
 		}
 		
 	}
@@ -610,14 +670,20 @@ bool user_init() {
 	if (!engine) return false;
 
 	fire_sound = engine->addSoundSourceFromFile(fire_sound_path);
+	tank_death = engine->addSoundSourceFromFile(tank_explode_sound_path);
 	base_attack_sound = engine->addSoundSourceFromFile(base_attack_sound_path);
 	base_explode_sound = engine->addSoundSourceFromFile(base_explode_sound_path);
 	bgm = engine->addSoundSourceFromFile(bgm_path);
+	winbgm = engine->addSoundSourceFromFile(winbgm_path);
+	losebgm = engine->addSoundSourceFromFile(losebgm_path);
 
 	fire_sound->setDefaultVolume(0.4f);
+	tank_death->setDefaultVolume(0.5f);
 	base_attack_sound->setDefaultVolume(0.4f);
 	base_explode_sound->setDefaultVolume(0.4f);
 	bgm->setDefaultVolume(0.6f);
+	winbgm->setDefaultVolume(0.5f);
+	losebgm->setDefaultVolume(0.5f);
 
 	vertex corners[4];
 	corners[0].pos = vec3(-1.0f, -1.0f, 0.0f);	corners[0].tex = vec2(0.0f, 0.0f);
@@ -636,6 +702,8 @@ bool user_init() {
 	if (!vertex_array_intro) { printf("%s(): failed to create vertex aray\n", __func__); return false; }
 
 	intro = create_texture(intro_path, true);	if (intro == -1) return false;
+	youwin = create_texture(win_path, true);	if (youwin == -1) return false;
+	youlose = create_texture(lose_path, true);	if (youlose == -1) return false;
 
 	if (!init_text()) return false;
 
@@ -689,6 +757,7 @@ int main(int argc, char* argv[]) {
 	for (frame = 0; !glfwWindowShouldClose(window); frame++) {
 		double currentTime = glfwGetTime();
 		glfwPollEvents();	// polling and processing of events
+		if (lose_flag && currentTime - lose_time > 2) game_mode = 3;
 		update((float)(currentTime-lastTime));			// per-frame update
 		render((float)(currentTime-lastTime));			// per-frame render
 		lastTime = currentTime;
