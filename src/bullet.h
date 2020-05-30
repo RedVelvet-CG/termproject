@@ -19,8 +19,9 @@ struct bullet {
 	int		creation_val = 3 * 14;
 	vec4	color = vec4(0.75f, 0.75f, 0.75f, 0.f);
 	vec3	movvec[4] = { {-0.5, 0, 0}, {0, 0.5, 0}, {0.5, 0, 0}, {0, -0.5, 0} };
+	bool	out_of_atmosphere = false;
 
-	void update();
+	void update(float elapsedTime);
 };
 
 void create_bullet_vertices(std::vector<vertex>& v) {
@@ -69,8 +70,8 @@ void make_bullet_indices(std::vector<uint>& v, uint N) {
 	make_bullet_part(v, N + 0);
 }
 
-inline void bullet::update() {
-	center += movvec[dir];
+inline void bullet::update(float elapsedTime) {
+	center += movvec[dir]*elapsedTime*500;
 	model_matrix = mat4::rotate(vec3(1, 0, 0), planevec[plane].x) *  //rotation around sun
 		mat4::translate(0, 0, 0) *
 		mat4::rotate(vec3(0, 1, 0), planevec[plane].y) *
