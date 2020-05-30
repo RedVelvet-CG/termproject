@@ -427,7 +427,6 @@ void print_help() {
 	printf("- press Home to reset camera\n");
 	printf("- press Control key and right buton of mouse to zoom\n");
 	printf("- press Shift key and middle button of mouse to pan\n");
-	printf("- press w to toggle from wireframe mode and solid mode\n");
 	printf("*******************Game features*******************\n");
 	printf("- press [ or ] key to adjust zoom speed\n");
 	printf("- press < or > key t adjust pan speed\n");
