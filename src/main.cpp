@@ -758,8 +758,8 @@ int main(int argc, char* argv[]) {
 		double currentTime = glfwGetTime();
 		glfwPollEvents();	// polling and processing of events
 		if (lose_flag && currentTime - lose_time > 2) game_mode = 3;
-		update((float)(currentTime-lastTime));			// per-frame update
-		render((float)(currentTime-lastTime));			// per-frame render
+		update((float)(currentTime-lastTime)*0.66f);			// per-frame update
+		render((float)(currentTime-lastTime)*0.66f);			// per-frame render
 		lastTime = currentTime;
 	}
 	// normal termination
