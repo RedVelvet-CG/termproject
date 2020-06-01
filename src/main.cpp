@@ -20,7 +20,7 @@ bool init_text();
 void render_text( std::string text, GLint x, GLint y, GLfloat scale, vec4 color, GLfloat dpi_scale=1.0f );
 
 // global constants
-static const char* window_name = "Tanks!";
+static const char* window_name = "RedVelvetHorde - Long live the KINGO";
 static const char* vert_shader_path = "../bin/shaders/trackball.vert";
 static const char* frag_shader_path = "../bin/shaders/trackball.frag";
 static const char* brick_path = "../bin/images/brick.jpg";
