@@ -596,14 +596,6 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
 			game_mode = 1;
 			engine->play2D(bgm, true);
 		}
-		else if (game_mode == 3) {
-			game_mode = 1;
-			lose_flag = false;
-			engine->stopAllSounds();
-			engine->play2D(bgm, true);
-			user_reset();
-		}
-		
 	}
 	else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
 		dvec2 pos; glfwGetCursorPos(window, &pos.x, &pos.y);
