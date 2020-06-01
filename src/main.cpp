@@ -574,6 +574,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 			engine->stopAllSounds();
 			lose_flag = false;
 			cam = camera();
+			base_health = 6;
 			user_reset();
 		}
 	}
