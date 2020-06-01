@@ -406,7 +406,7 @@ void render(float elapsedTime) {
 			if (!engine->isCurrentlyPlaying(winbgm)) engine->play2D(winbgm, true);
 		}
 		else if (game_mode == 3) {
-			if (!engine->isCurrentlyPlaying(losebgm)) engine->play2D(losebgm, true);
+			if (!engine->isCurrentlyPlaying(losebgm)) engine->play2D(losebgm, false);
 		}
 	
 		glBindVertexArray(vertex_array_intro);
